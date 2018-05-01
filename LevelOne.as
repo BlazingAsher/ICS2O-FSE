@@ -36,6 +36,13 @@
 			
 			assetArray = new Array();
 			
+			for(var j:int=0;j<7;j++){
+				borderTracker = new BorderTracker();
+				borderTracker.x = -570; //increase to right
+				borderTracker.y = -210; //increase up, decrease down
+				this.addChild(borderTracker)
+			}
+			
 			vx = 0;
 			vy = 0;
 			
