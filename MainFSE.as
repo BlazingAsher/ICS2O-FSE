@@ -13,7 +13,7 @@
 		public function MainFSE()//CONSTRUCTOR - runs when the program starts
 		//it has the same name as the class name - runs ONLY ONCE
 		{
-			//menu has level number Infinity
+			//menu has level number -1
 			keyboardCapture = "stage";
 			level = 1;
 			
@@ -39,34 +39,55 @@
 		}
 		
 		public function movePlayer(e:KeyboardEvent){
-			if(e.keyCode == Keyboard.TAB || e.keyCode == Keyboard.ESCAPE){
-				keyboardCapture = "menu";
-			}
 			
-			if(e.keyCode == Keyboard.TAB && !stage.contains(sideMenu)){
-				trace("bye")
+			if((e.keyCode == Keyboard.TAB || e.keyCode == Keyboard.ESCAPE) && keyboardCapture != "menu"){
+				trace("capture")
+				keyboardCapture = "menu";
+				sideMenu.setLevelOnOpen(level);
+				level = -1;
+				sideMenu.resetTimer();
 				stage.addChild(sideMenu);
 			}
-			else if((e.keyCode == Keyboard.ESCAPE || e.keyCode == Keyboard.TAB) && stage.contains(sideMenu)){
-				trace("hi")
-				stage.removeChild(sideMenu);
-			}
-			if(keyboardCapture == "menu"){
-				
-			}
 			
-			else{
+			if(keyboardCapture == "menu"){
+				sideMenu.handleKeyboardDown(e);
+			}
+			else if(keyboardCapture == "1"){
 				levelOne.handleKeyboardDown(e);
+			}
+			else{
+				trace("other level");
 			}
 			
 		}
 		
 		public function unMovePlayer(e:KeyboardEvent){
-			levelOne.handleKeyboardUp(e);
+			if(keyboardCapture == "menu"){
+				sideMenu.handleKeyboardUp(e);
+			}
+			else if(keyboardCapture == "1"){
+				levelOne.handleKeyboardUp(e);
+			}
+			else{
+				trace("other level");
+			}
+		}
+		
+		public function checkLevelDone(){
+			if(level == -1){
+				if(sideMenu.getIsFinished()){
+					level = sideMenu.levelOnOpen();
+					keyboardCapture = level.toString();
+					trace("newlvl" + level);
+					trace("newkey" + keyboardCapture);
+					stage.removeChild(sideMenu);
+				}
+			}
 		}
 		
 		public function gameLoop(e:Event)
 		{
+			checkLevelDone();
 			//levelOne.x = mouseX;
 			//levelOne.y = mouseY;
 		}

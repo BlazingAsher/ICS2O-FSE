@@ -12,10 +12,11 @@
 		var vx,vy:int;
 		var p:Ash;
 		var borderTracker:BorderTracker;
-		var assetArray:Array;
+		var assetArray,borderArray:Array;
 		var troubleshooting:Boolean;
 		var globalWalking:Boolean;
 		var globalDir:int;
+		var isFinished:Boolean;
 		
 		//w = 1600
 		//h = 668
@@ -28,20 +29,21 @@
 			
 		}//end CONSTRUCTOR
 		
-		public function getLevelStatus(){
-			return "test";
+		public function getIsFinished(){
+			return isFinished;
 		}
 		
 		public function createAssets(){
 			
-			assetArray = new Array();
+			isFinished = false;
 			
-			for(var j:int=0;j<7;j++){
-				borderTracker = new BorderTracker();
-				borderTracker.x = -570; //increase to right
-				borderTracker.y = -210; //increase up, decrease down
-				this.addChild(borderTracker)
-			}
+			assetArray = new Array();
+			borderArray = new Array();
+			
+			createBorders(true,-568,-212,8,7);//1st house
+			createBorders(true,-280,-212,8,7);//2nd house
+			createBorders(true,8,-212,8,7);//3rd house
+			createBorders(true,296,-212,8,7);//4th house
 			
 			vx = 0;
 			vy = 0;
@@ -51,31 +53,99 @@
 			p.scaleX=0.7;
 			p.scaleY=0.7;
 			this.addChild(p);
-			
-			for(var i:int=0;i<4;i++){ //check whether to move player or background
-				borderTracker = new BorderTracker();
-				if(i == 0){
-					borderTracker.x = -800;
-					borderTracker.y = 334;
-				}
-				else if(i == 1){
-					borderTracker.x = -800;
-					borderTracker.y = -334;
-				}
-				else if(i == 2){
-					borderTracker.x = 800;
-					borderTracker.y = 334;
-				}
-				else{
-					borderTracker.x = 800;
-					borderTracker.y = -334;
-				}
-				
-				this.addChild(borderTracker);
-				assetArray.push(borderTracker);
-			}
-			
 		}
+		public function createBorders(isRect:Boolean,startx:int,starty:int,len:int=0,wid:int=0,horiz:Boolean=true){
+			//ADAPT
+			//len: length of border (in squares)
+			//wid: width of border (in squares)
+			//isRect: is the border a rectangle (surrounding a building)?
+			//horiz: (if isRect = false) is the line a horizontal line? (If not, it is vertical)
+			//startx: starting x of border
+			//starty: starting y of border
+			
+			if(isRect){//check if the border will be a rectangle
+			
+				for(var j:int=0;j<2;j++){
+					
+					if(j == 0){//create first horizontal line
+						trace("first line");
+						for(var i:int=0;i<len;i++){
+							borderTracker = new BorderTracker();
+							borderTracker.x = startx+20*i; //increase to right (start at -568)
+							borderTracker.y = starty; //increase down, decrease up (start at -212)
+							borderTracker.alpha=0.5;
+							borderArray.push(borderTracker);
+							this.addChild(borderTracker);
+						}//end for
+						
+					}//end if
+					
+					else{//create second horizontal line
+						trace("second line");
+						for(var l:int=0;l<len;l++){
+							borderTracker = new BorderTracker();
+							borderTracker.x = startx+20*l; //increase to right (start at -568)
+							borderTracker.y = starty+20*(len-2); //increase down, decrease up (start at 212)
+							borderTracker.alpha=0.5;
+							borderArray.push(borderTracker);
+							this.addChild(borderTracker);
+						}//end for
+						
+					}//end else
+				}//end for
+				
+				for(var k:int=0;k<2;k++){
+					
+					if(k == 0){//create first vertical line
+						trace("third line");
+						for(var m:int=0;m<wid;m++){
+							borderTracker = new BorderTracker();
+							borderTracker.x = startx; //increase to right (start at -568)
+							borderTracker.y = starty+20*m; //increase down, decrease up (start at 212)
+							borderTracker.alpha=0;
+							borderArray.push(borderTracker);
+							this.addChild(borderTracker);
+						}//end for
+						
+					}//end if
+					else{//create second vertical line
+						trace("fourth line");
+						for(var n:int=0;n<wid;n++){
+							borderTracker = new BorderTracker();
+							borderTracker.x = startx+20*(len-1); //increase to right (start at -568)
+							borderTracker.y = starty+20*n; //increase down, decrease up (start at 212)
+							borderTracker.alpha=0;
+							borderArray.push(borderTracker);
+							this.addChild(borderTracker);
+						}//end for
+					}//end else
+				}//end for
+			}//end if
+			
+			else{//it is a line
+				if(horiz){//create a horizontal line
+					for(var p:int=0;p<len;p++){
+						borderTracker = new BorderTracker();
+						borderTracker.x = startx+20*p; //increase to right (start at -568)
+						borderTracker.y = starty; //increase down, decrease up (start at 212)
+						borderArray.push(borderTracker);
+						this.addChild(borderTracker);
+					}//end for
+				}//end if
+				
+				else{//create a vertical line
+					for(var q:int=0;q<wid;q++){
+						borderTracker = new BorderTracker();
+						borderTracker.x = startx; //increase to right (start at -568)
+						borderTracker.y = starty+20*q; //increase down, decrease up (start at 212)
+						borderArray.push(borderTracker);
+						this.addChild(borderTracker);
+					}//end for
+				}//end else
+			}//end else
+			
+			
+		}//end function
 		
 		public function handleKeyboardDown(e:KeyboardEvent){
 			if(e.keyCode == Keyboard.UP){
@@ -255,7 +325,7 @@
 			}
 			else {
 				globalWalking = false;
-				if(globalDir == 0){
+				/*if(globalDir == 0){
 					p.gotoAndStop(25);
 				}
 				else if(globalDir == 1){
@@ -266,6 +336,15 @@
 				}
 				else if(globalDir == 3){
 					p.gotoAndStop(1);
+				}*/
+			}
+		}
+		
+		public function checkCollision(){
+			for(var i:int=0;i<borderArray.length;i++){
+				if(p.hitTestObject(borderArray[i])){
+					p.x-=vx;
+					p.y-=vy;
 				}
 			}
 		}
@@ -273,6 +352,7 @@
 		public function gameLoop(e:Event)
 		{
 			movePlayer();
+			checkCollision();
 			walk();
 			//p.x = mouseX;
 			//p.y = mouseY;
