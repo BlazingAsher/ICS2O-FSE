@@ -61,6 +61,7 @@
 		public function handleKeyboardDown(e:KeyboardEvent){
 			trace("hi");
 			if(e.keyCode == Keyboard.TAB && canExit){
+				trace("lol");
 				isFinished = true;
 			}
 		}

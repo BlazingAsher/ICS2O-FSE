@@ -47,6 +47,7 @@
 				level = -1;
 				sideMenu.resetTimer();
 				stage.addChild(sideMenu);
+				trace('added');
 			}
 			
 			if(keyboardCapture == "menu"){
@@ -81,6 +82,7 @@
 					trace("newlvl" + level);
 					trace("newkey" + keyboardCapture);
 					stage.removeChild(sideMenu);
+					trace('deleted');
 				}
 			}
 		}
