@@ -89,7 +89,7 @@
 					//Create ActionItem handlers
 					registerAction(-505,200,115,95,"sign");
 					
-					//Set frame
+					 //Set frame
 					this.gotoAndStop(2);
 					
 					//Set player coordinates
@@ -103,7 +103,7 @@
 					//Create ActionItem handlers
 					
 					//Set frame
-					this.gotoAndStop(2);
+					this.gotoAndStop(3);
 					//Set player coordinates
 			}
 			
@@ -372,7 +372,7 @@
 					p.y-=vy;
 				}
 			}
-			for(var j:int=0;j<actionItemArray.length;j++){
+						for(var j:int=0;j<actionItemArray.length;j++){
 				if(p.hitTestObject(actionItemArray[j]) && ctrlDown){
 					p.x-=vx;
 					p.y-=vy;
@@ -384,12 +384,13 @@
 					if(tempType == "sign"){
 						trace("Sign says: " + tempMess);
 					}
-					else(tempType == "door"){
+					else if(tempType == "door"){
 						trace("Door going to: " + tempMess);
 					}
 				}
 			}
 		}
+		
 		
 		public function gameLoop(e:Event)
 		{
