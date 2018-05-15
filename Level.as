@@ -105,6 +105,48 @@
 					//Set frame
 					this.gotoAndStop(3);
 					//Set player coordinates
+					
+					break;
+				case 3:
+					//Create barriers
+					
+					//Create ActionItem handlers
+					
+					//Set frame
+					this.gotoAndStop(4);
+					//Set player coordinates
+					
+					break;
+				case 4:
+					//Create barriers
+					
+					//Create ActionItem handlers
+					
+					//Set frame
+					this.gotoAndStop(5);
+					//Set player coordinates
+					
+					break;
+				case 5:
+					//Create barriers
+					
+					//Create ActionItem handlers
+					
+					//Set frame
+					this.gotoAndStop(6);
+					//Set player coordinates
+					
+					break;
+				case 6:
+					//Create barriers
+					
+					//Create ActionItem handlers
+					
+					//Set frame
+					this.gotoAndStop(7);
+					//Set player coordinates
+					
+					break;
 			}
 			
 			vx = 0;
