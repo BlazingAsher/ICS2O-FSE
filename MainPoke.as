@@ -18,6 +18,8 @@
 			showIas = false;
 			showIos = false;
 			showMt = false;
+			pokemon = new Pokemon("pikachu")
+			var tempType = "pikachu"
 			showPik = false;
 			showReg = false;
 			showSk = false;
