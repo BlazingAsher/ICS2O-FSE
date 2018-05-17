@@ -87,7 +87,7 @@
 					createBorders(-505,215,115,95);
 					
 					//Create ActionItem handlers
-					registerAction(-505,200,115,95,"sign");
+					registerAction(-505,200,115,95,"sign","CHANGEME");
 					
 					 //Set frame
 					this.gotoAndStop(2);
@@ -100,11 +100,160 @@
 				case 2:
 					//Create barriers
 					
+					//createBorders(x,y,sizex,sizey)
+					//PC Center
+					createBorders(43,164,132,114);
+					
+					//Mart
+					createBorders(364,-45,100,100);
+					
+					//Gym
+					createBorders(323,-334,179,90);
+					
+					//Houses
+					createBorders(38,-62,142,101);
+					createBorders(38,-289,142,88);
+					
+					//Upper Rock
+					createBorders(-800,-334,311,261);
+					
+					//Lower Rock
+					createBorders(-777,84,235,238);
+					
+					//Tree Clusters
+					createBorders(-506,149,108,73);
+					createBorders(-345,182,41,70);
+					createBorders(-435,-332,297,280);
+					
+					//Pond
+					createBorders(-370,272,164,57);
+					
+					//Ledge
+					createBorders(203,-163,391,3);
+					
+					//Fence
+					createBorders(203,-73,391,3);
+					
+					//Left Border Trees
+					createBorders(616,-334,184,668);
+					
 					//Create ActionItem handlers
+					
+					//Sign1
+					registerAction(-92,-49,20,20,"sign","CHANGEME");
+					//HouseDoor1
+					registerAction(69,12,20,20,"door","CHANGEME");
+					//HouseDoor2
+					registerAction(69,-216,20,20,"door","CHANGEME");
+					//Gym Sign
+					registerAction(290,-255,20,20,"sign","CHANGEME");
+					//Gym Door
+					registerAction(417,-247,20,20,"door","CHANGEME");
+					//PCDoor
+					registerAction(101,268,20,20,"door","CHANGEME");
+					//ShopDoor
+					registerAction(423,45,20,20,"door","CHANGEME");
 					
 					//Set frame
 					this.gotoAndStop(3);
+					
 					//Set player coordinates
+					
+					break;
+				case 3:
+					//Create barriers
+					
+					//MuseamMain
+					createBorders(-343,-309,331,217);
+					//MueamSide
+					createBorders(2,-291,145,106);
+					//gym
+					createBorders(-441,59,394,133);
+					//mart
+					createBorders(107,158,101,103);
+					//house
+					createBorders(295,-54,142,91);
+					//pc
+					createBorders(298,-242,136,118);
+					//marttree
+					createBorders(232,193,44,66);
+					//righttree
+					createBorders(547,-288,253,580);
+					//righttreejut
+					createBorders(489,-282,53,131);
+					//lefttree
+					createBorders(-797,-283,187,610);
+					//lefttreejut
+					createBorders(-602,-31,47,365);
+					//pcflowers
+					createBorders(183,-269,99,76);
+					//gymfence
+					createBorders(-540,322,488,3);
+					//gymfencevert
+					createBorders(-42,221,3,94);
+					//fenceledge
+					createBorders(-605,-133,83,43);
+					//museamledge
+					createBorders(-444,-89,722,3);
+					//toptrees
+					createBorders(-800,-334,1600,55);
+
+					//Create ActionItem handlers
+					
+					//gymdoor
+					registerAction(-252,182,20,20,"door","CHANGEME");
+					//gymsign
+					registerAction(-380,171,20,20,"sign","CHANGEME");
+					//martdoor
+					registerAction(163,247,20,20,"door","CHANGEME");
+					//sign
+					registerAction(516,279,20,20,"sign","CHANGEME");
+					//housedoor
+					registerAction(323,19,20,20,"door","CHANGEME");
+					//museamdoor
+					registerAction(-208,-124,20,20,"door","CHANGEME");
+					//museamsidedoor
+					registerAction(69,-204,20,20,"door","CHANGEME");
+					//muesaemsign
+					registerAction(-123,-103,20,20,"sign","CHANGEME");
+					//pcdoor
+					registerAction(356,-139,20,20,"door","CHANGEME");
+					
+					//Set frame
+					this.gotoAndStop(4);
+					//Set player coordinates
+					
+					break;
+				case 4:
+					//Create barriers
+					
+					//Create ActionItem handlers
+					
+					//Set frame
+					this.gotoAndStop(5);
+					//Set player coordinates
+					
+					break;
+				case 5:
+					//Create barriers
+					
+					//Create ActionItem handlers
+					
+					//Set frame
+					this.gotoAndStop(6);
+					//Set player coordinates
+					
+					break;
+				case 6:
+					//Create barriers
+					
+					//Create ActionItem handlers
+					
+					//Set frame
+					this.gotoAndStop(7);
+					//Set player coordinates
+					
+					break;
 			}
 			
 			vx = 0;
@@ -133,7 +282,7 @@
 			
 		}//end function
 		
-		public function registerAction(startX:int,startY:int,len:int,wid:int,type:String,mess:String=null){
+		public function registerAction(startX:int,startY:int,len:int,wid:int,type:String,mess:String){
 			actionItem = new ActionItem(type,mess);
 			actionItem.scaleX=len/20;
 			actionItem.scaleY=wid/20;
@@ -200,6 +349,9 @@
 					vx = 0;
 					doWalkingAnimation(false,1);
 				}
+				if(e.keyCode == Keyboard.HOME){
+					trace("NEXT");
+				}
 				if(e.keyCode == Keyboard.CONTROL){
 					ctrlDown = false;
 					if(vx>0){
@@ -260,8 +412,8 @@
 			//managing y
 			if(pt.y < 50 && vy<0 && !(this.y > 330+vy)){
 				//trace("hi");
-				trace(vy);
-				trace(pt.y);
+				//trace(vy);
+				//trace(pt.y);
 				this.y += -vy;
 				p.y += vy;
 			}
@@ -391,6 +543,9 @@
 			}
 		}
 		
+		public function printMouse(e:MouseEvent){
+			trace("X: " + mouseX + " Y: " + mouseY);
+		}
 		
 		public function gameLoop(e:Event)
 		{

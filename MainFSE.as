@@ -5,7 +5,7 @@
 	import flash.ui.Keyboard;
 	public class MainFSE extends MovieClip
 	{
-		var levelTut,levelOne,levelTwo,levelThree,levelFour,levelFive:Level;
+		var levelTut,levelOne,levelTwo,levelThree,levelFour,levelFive,levelSix:Level;
 		var battleArena:Arena;
 		var sideMenu:SideMenu;
 		var keyboardCapture:String;
@@ -62,6 +62,35 @@
 			stage.addChild(levelTwo);
 		}
 		
+		public function levelThreeInit(){
+			levelThree = new Level(3);
+			levelThree.x = 275;
+			levelThree.y = 200;
+			stage.addChild(levelThree);
+		}
+		
+		public function levelFourInit(){
+			levelFour = new Level(4);
+			levelFour.x = 275;
+			levelFour.y = 200;
+			stage.addChild(levelFour);
+			levelFour.addEventListener(MouseEvent.CLICK,levelFour.printMouse);
+		}
+		
+		public function levelFiveInit(){
+			levelFive = new Level(5);
+			levelFive.x = 275;
+			levelFive.y = 200;
+			stage.addChild(levelFive);
+		}
+		
+		public function levelSixInit(){
+			levelSix = new Level(6);
+			levelSix.x = 275;
+			levelSix.y = 200;
+			stage.addChild(levelSix);
+		}
+		
 		public function movePlayer(e:KeyboardEvent){
 			
 			if((e.keyCode == Keyboard.TAB || e.keyCode == Keyboard.ESCAPE) && level != -1 && level != 0){
@@ -74,7 +103,7 @@
 				trace('added');
 			}
 			
-			//battle is -2, menu is -1, tutorial is 0, level one is 1
+			//gyms are -3, battle is -2, menu is -1, tutorial is 0, levels are 1-6, maze is 7, outside of final battle is 8, inside of final battle is 9
 			
 			switch(level){
 				case -2:
@@ -91,6 +120,18 @@
 					break;
 				case 2:
 					levelTwo.handleKeyboardDown(e);
+					break;
+				case 3:
+					levelThree.handleKeyboardDown(e);
+					break;
+				case 4:
+					levelFour.handleKeyboardDown(e);
+					break;
+				case 5:
+					levelFive.handleKeyboardDown(e);
+					break;
+				case 6:
+					levelSix.handleKeyboardDown(e);
 					break;
 				default:
 					trace("other level");
@@ -114,6 +155,18 @@
 					break;
 				case 2:
 					levelTwo.handleKeyboardUp(e);
+					break;
+				case 3:
+					levelThree.handleKeyboardUp(e);
+					break;
+				case 4:
+					levelFour.handleKeyboardUp(e);
+					break;
+				case 5:
+					levelFive.handleKeyboardUp(e);
+					break;
+				case 6:
+					levelSix.handleKeyboardUp(e);
 					break;
 				default:
 					trace("other level");
@@ -157,6 +210,51 @@
 						level = 2;
 						levelOne = null;
 						levelTwoInit();
+					}
+					break;
+				case 2:
+					if(levelTwo.getIsFinished()){
+						trace("received level2 done");
+						stage.removeChild(levelTwo);
+						level = 3;
+						levelTwo = null;
+						levelThreeInit();
+					}
+					break;
+				case 3:
+					if(levelThree.getIsFinished()){
+						trace("received level3 done");
+						stage.removeChild(levelThree);
+						level = 4;
+						levelThree = null;
+						levelFourInit();
+					}
+					break;
+				case 4:
+					if(levelFour.getIsFinished()){
+						trace("received level1 done");
+						stage.removeChild(levelFour);
+						level = 5;
+						levelFour = null;
+						levelFiveInit();
+					}
+					break;
+				case 5:
+					if(levelFive.getIsFinished()){
+						trace("received level1 done");
+						stage.removeChild(levelFive);
+						level = 6;
+						levelFive = null;
+						levelSixInit();
+					}
+					break;
+				case 6:
+					if(levelSix.getIsFinished()){
+						trace("received level1 done");
+						stage.removeChild(levelSix);
+						level = 7;
+						levelOne = null;
+						//levelTwoInit();
 					}
 					break;
 			}
