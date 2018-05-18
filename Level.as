@@ -20,6 +20,7 @@
 		var walkingDisabled:Boolean;
 		var ctrlDown:Boolean;
 		var actionItem:ActionItem;
+		var poke:Pokemon;
 		
 		//w = 1600
 		//h = 668
@@ -89,6 +90,14 @@
 					//Create ActionItem handlers
 					registerAction(-505,200,115,95,"sign");
 					
+					//Add a pokemon
+					
+					poke = new Pokemon("zapdos");
+					poke.x = 0;
+					poke.y = 120;
+					this.addChild(poke);
+					//trace("added");
+					
 					 //Set frame
 					this.gotoAndStop(2);
 					
@@ -156,6 +165,7 @@
 			p.scaleX=0.7;
 			p.scaleY=0.7;
 			this.addChild(p);
+			
 		}
 		public function createBorders(startX:int,startY:int,len:int,wid:int){
 			//ADAPT
@@ -281,6 +291,10 @@
 				trace("vy:" + vy);
 				trace(this.x > 800+vx);
 				trace(this.x <-250+vx);
+			}
+			
+			if(poke != null && p.hitTestObject(poke)){
+				trace("agf");
 			}
 			
 			//managing x
