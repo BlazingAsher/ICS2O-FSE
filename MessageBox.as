@@ -14,7 +14,7 @@
 		var returnValue:int;
 		var boxType:String;
 		var userResponse:int;
-		var promptActive:Boolean;
+		var promptActive,textDone:Boolean;
 		var yesNo,pointer:YesNo;
 		
 		public function MessageBox()//CONSTRUCTOR - runs when the program starts
@@ -25,6 +25,7 @@
 			boxType = "message";
 			
 			promptActive = false;
+			textDone = false;
 
 			userResponse = -1;
 			
@@ -99,6 +100,7 @@
 			currIndex = 0;
 			setup = false;
 			userResponse = -1;
+			textDone = false;
 		}
 		
 		public function changeBox(type:String){
@@ -121,12 +123,7 @@
 		
 		
 		public function getResponse(){
-			if(promptActive){
-				return userResponse;
-			}
-			else{
-				return null;
-			}
+			return userResponse;
 		}
 		
 		public function createPrompt(){
@@ -186,9 +183,14 @@
 				
 			}
 			
-			if(e.keyCode == Keyboard.ENTER){
-				userResponse = (pointer.y+183)/-62;
-				trace(userResponse);
+			if(e.keyCode == Keyboard.ENTER && textDone){
+				if(promptActive){
+					userResponse = (pointer.y+183)/-62;
+					trace(userResponse);
+				}
+				else{
+					userResponse = -2;
+				}
 			}
 		}
 		
@@ -202,6 +204,7 @@
 				currIndex++;
 				if(currIndex == letterArray.length){
 					myTimer.stop();
+					textDone = true;
 					//reset();
 				}
 			}

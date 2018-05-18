@@ -23,6 +23,7 @@
 		var actionItem:ActionItem;
 		var messageBox:MessageBox;
 		var prompting:Boolean;
+		var userResponse:int;
 		
 		//w = 1600
 		//h = 668
@@ -282,6 +283,7 @@
 			p.scaleX=0.7;
 			p.scaleY=0.7;
 			this.addChild(p);
+			
 		}
 		
 		public function createPrompt(type:String,promptText:String,yesno:Boolean){
@@ -299,13 +301,13 @@
 			if(prompting){
 				var userData = messageBox.getResponse();
 				//trace(userData);
-				if((userData != null && userData != -1) || userData == "done"){
+				if(userData != -1){
 					trace("destroying");
-					trace(userData);
 					messageBox.destroyPrompt()
 					messageBox.resetBox();
 					this.removeChild(messageBox);
 					prompting = false;
+					userResponse = userData;
 				}
 			}
 		}
@@ -376,7 +378,7 @@
 				}
 			}
 			if(e.keyCode == Keyboard.SHIFT){
-					//isFinished = true;
+					isFinished = true;
 					//trace("done level1");
 			}
 		}
@@ -584,11 +586,12 @@
 					
 					trace("interacted with: " + tempType + " with message " + tempMess);
 					if(tempType == "sign"){
-						trace("Sign says: " + tempMess);
+						createPrompt("message",tempMess,false);
 					}
 					else if(tempType == "door"){
 						trace("Door going to: " + tempMess);
 					}
+					
 				}
 			}
 		}
