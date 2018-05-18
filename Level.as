@@ -11,6 +11,7 @@
 		var levelTimer:Timer;
 		var vx,vy:int;
 		var p:Ash;
+		var settings:Dictionary;
 		var borderTracker:BorderTracker;
 		var assetArray,borderArray,actionItemArray:Array;
 		var troubleshooting:Boolean;
@@ -20,13 +21,17 @@
 		var walkingDisabled:Boolean;
 		var ctrlDown:Boolean;
 		var actionItem:ActionItem;
+		var messageBox:MessageBox;
+		var prompting:Boolean;
 		
 		//w = 1600
 		//h = 668
 		
-		public function Level(levelNumber:int)//CONSTRUCTOR - runs when the program starts
+		public function Level(levelNumber:int,tempSettings:Dictionary)//CONSTRUCTOR - runs when the program starts
 		//it has the same name as the class name - runs ONLY ONCE
 		{
+			prompting = false;
+			settings = tempSettings;
 			createAssets(levelNumber);
 			this.addEventListener(Event.ENTER_FRAME,gameLoop);
 			
@@ -34,6 +39,14 @@
 		
 		public function getIsFinished(){
 			return isFinished;
+		}
+		
+		public function getData(){
+			return settings;
+		}
+		
+		public function updateSettings(tempSettings:Dictionary){
+			tempSettings = settings;
 		}
 		
 		public function createAssets(levelNumber:int){
@@ -48,6 +61,12 @@
 			assetArray = new Array();
 			borderArray = new Array();
 			actionItemArray = new Array();
+			
+			messageBox = new MessageBox();
+			messageBox.scaleX = 0.46;
+			messageBox.scaleY = 0.46;
+			messageBox.x = 0;
+			messageBox.y = 150;
 			
 			p = new Ash();
 			
@@ -264,6 +283,33 @@
 			p.scaleY=0.7;
 			this.addChild(p);
 		}
+		
+		public function createPrompt(type:String,promptText:String,yesno:Boolean){
+			this.addChild(messageBox);
+			messageBox.setText(promptText);
+			messageBox.changeBox(type);
+			messageBox.startReveal();
+			if(yesno){
+				messageBox.createPrompt();
+			}
+			prompting = true;
+		}
+		
+		public function checkPrompt(){
+			if(prompting){
+				var userData = messageBox.getResponse();
+				//trace(userData);
+				if((userData != null && userData != -1) || userData == "done"){
+					trace("destroying");
+					trace(userData);
+					messageBox.destroyPrompt()
+					messageBox.resetBox();
+					this.removeChild(messageBox);
+					prompting = false;
+				}
+			}
+		}
+		
 		public function createBorders(startX:int,startY:int,len:int,wid:int){
 			//ADAPT
 			//len: length of border (in pixels)
@@ -294,7 +340,11 @@
 		}
 		
 		public function handleKeyboardDown(e:KeyboardEvent){
-			if(!walkingDisabled){
+			if(prompting){
+				//trace("prompting");
+				messageBox.handleKeyboardDown(e);
+			}
+			else if(!walkingDisabled){
 				if(e.keyCode == Keyboard.UP){
 					doWalkingAnimation(true,2);
 					vx = 0;
@@ -326,8 +376,8 @@
 				}
 			}
 			if(e.keyCode == Keyboard.SHIFT){
-					isFinished = true;
-					trace("done level1");
+					//isFinished = true;
+					//trace("done level1");
 			}
 		}
 		
@@ -552,6 +602,7 @@
 			movePlayer();
 			checkCollision();
 			walk();
+			checkPrompt();
 			//p.x = mouseX;
 			//p.y = mouseY;
 		 	//trace("hi");

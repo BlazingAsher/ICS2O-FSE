@@ -2,6 +2,7 @@
 {
 	import flash.display.MovieClip;
 	import flash.events.*;
+	import flash.utils.*;
 	import flash.ui.Keyboard;
 	public class MainFSE extends MovieClip
 	{
@@ -10,11 +11,16 @@
 		var sideMenu:SideMenu;
 		var keyboardCapture:String;
 		var level:int;
+		var settings:Dictionary;
 		
 		public function MainFSE()//CONSTRUCTOR - runs when the program starts
 		//it has the same name as the class name - runs ONLY ONCE
 		{
 			//menu has level number -1
+			
+			settings = new Dictionary();
+			settings['music'] = true;
+			
 			level = 0;
 			
 			levelTutInit();
@@ -34,13 +40,13 @@
 		}
 		
 		public function sideMenuInit(){
-			sideMenu = new SideMenu("sidebar");
+			sideMenu = new SideMenu("sidebar",settings);
 			sideMenu.x = 575;
 			sideMenu.y = 200;
 		}
 		
 		public function levelTutInit(){
-			levelTut = new Level(0);
+			levelTut = new Level(0,settings);
 			levelTut.x = 275;
 			levelTut.y = 200;
 			trace("added tut");
@@ -48,7 +54,7 @@
 		}
 		
 		public function levelOneInit(){
-			levelOne = new Level(1);
+			levelOne = new Level(1,settings);
 			levelOne.x = 275;
 			levelOne.y = 200;
 			stage.addChild(levelOne);
@@ -56,21 +62,21 @@
 		}
 		
 		public function levelTwoInit(){
-			levelTwo = new Level(2);
+			levelTwo = new Level(2,settings);
 			levelTwo.x = 275;
 			levelTwo.y = 200;
 			stage.addChild(levelTwo);
 		}
 		
 		public function levelThreeInit(){
-			levelThree = new Level(3);
+			levelThree = new Level(3,settings);
 			levelThree.x = 275;
 			levelThree.y = 200;
 			stage.addChild(levelThree);
 		}
 		
 		public function levelFourInit(){
-			levelFour = new Level(4);
+			levelFour = new Level(4,settings);
 			levelFour.x = 275;
 			levelFour.y = 200;
 			stage.addChild(levelFour);
@@ -78,14 +84,14 @@
 		}
 		
 		public function levelFiveInit(){
-			levelFive = new Level(5);
+			levelFive = new Level(5,settings);
 			levelFive.x = 275;
 			levelFive.y = 200;
 			stage.addChild(levelFive);
 		}
 		
 		public function levelSixInit(){
-			levelSix = new Level(6);
+			levelSix = new Level(6,settings);
 			levelSix.x = 275;
 			levelSix.y = 200;
 			stage.addChild(levelSix);
@@ -191,6 +197,7 @@
 						trace(level);
 						trace("newlvl" + level);
 						trace("newkey" + keyboardCapture);
+						settings = sideMenu.getSettings();
 						stage.removeChild(sideMenu);
 						trace('deleted');
 					}
