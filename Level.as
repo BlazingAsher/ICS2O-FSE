@@ -11,6 +11,7 @@
 		var levelTimer:Timer;
 		var vx,vy:int;
 		var p:Ash;
+		var settings:Dictionary;
 		var borderTracker:BorderTracker;
 		var assetArray,borderArray,actionItemArray:Array;
 		var troubleshooting:Boolean;
@@ -20,13 +21,23 @@
 		var walkingDisabled:Boolean;
 		var ctrlDown:Boolean;
 		var actionItem:ActionItem;
+		var messageBox:MessageBox;
+		var prompting:Boolean;
+		var userResponse:int;
+		var inside:Boolean;
+		var blocker:Blocker = new Blocker();
+		
+		
 		
 		//w = 1600
 		//h = 668
 		
-		public function Level(levelNumber:int)//CONSTRUCTOR - runs when the program starts
+		public function Level(levelNumber:int,tempSettings:Dictionary)//CONSTRUCTOR - runs when the program starts
 		//it has the same name as the class name - runs ONLY ONCE
 		{
+			prompting = false;
+			inside = false;
+			settings = tempSettings;
 			createAssets(levelNumber);
 			this.addEventListener(Event.ENTER_FRAME,gameLoop);
 			
@@ -34,6 +45,14 @@
 		
 		public function getIsFinished(){
 			return isFinished;
+		}
+		
+		public function getData(){
+			return settings;
+		}
+		
+		public function updateSettings(tempSettings:Dictionary){
+			tempSettings = settings;
 		}
 		
 		public function createAssets(levelNumber:int){
@@ -48,6 +67,12 @@
 			assetArray = new Array();
 			borderArray = new Array();
 			actionItemArray = new Array();
+			
+			messageBox = new MessageBox();
+			messageBox.scaleX = 0.46;
+			messageBox.scaleY = 0.46;
+			messageBox.x = 0;
+			messageBox.y = 150;
 			
 			p = new Ash();
 			
@@ -141,7 +166,9 @@
 					
 					//Sign1
 					registerAction(-92,-49,20,20,"sign","CHANGEME");
+					
 					//HouseDoor1
+					/*
 					registerAction(69,12,20,20,"door","CHANGEME");
 					//HouseDoor2
 					registerAction(69,-216,20,20,"door","CHANGEME");
@@ -154,6 +181,7 @@
 					//ShopDoor
 					registerAction(423,45,20,20,"door","CHANGEME");
 					
+					*/
 					//Set frame
 					this.gotoAndStop(3);
 					
@@ -263,7 +291,35 @@
 			p.scaleX=0.7;
 			p.scaleY=0.7;
 			this.addChild(p);
+			
 		}
+		
+		public function createPrompt(type:String,promptText:String,yesno:Boolean){
+			this.addChild(messageBox);
+			messageBox.setText(promptText);
+			messageBox.changeBox(type);
+			messageBox.startReveal();
+			if(yesno){
+				messageBox.createPrompt();
+			}
+			prompting = true;
+		}
+		
+		public function checkPrompt(){
+			if(prompting){
+				var userData = messageBox.getResponse();
+				//trace(userData);
+				if(userData != -1){
+					trace("destroying");
+					messageBox.destroyPrompt()
+					messageBox.resetBox();
+					this.removeChild(messageBox);
+					prompting = false;
+					userResponse = userData;
+				}
+			}
+		}
+		
 		public function createBorders(startX:int,startY:int,len:int,wid:int){
 			//ADAPT
 			//len: length of border (in pixels)
@@ -294,7 +350,11 @@
 		}
 		
 		public function handleKeyboardDown(e:KeyboardEvent){
-			if(!walkingDisabled){
+			if(prompting){
+				//trace("prompting");
+				messageBox.handleKeyboardDown(e);
+			}
+			else if(!walkingDisabled){
 				if(e.keyCode == Keyboard.UP){
 					doWalkingAnimation(true,2);
 					vx = 0;
@@ -327,7 +387,7 @@
 			}
 			if(e.keyCode == Keyboard.SHIFT){
 					isFinished = true;
-					trace("done level1");
+					//trace("done level1");
 			}
 		}
 		
@@ -524,22 +584,94 @@
 					p.y-=vy;
 				}
 			}
-						for(var j:int=0;j<actionItemArray.length;j++){
-				if(p.hitTestObject(actionItemArray[j]) && ctrlDown){
-					p.x-=vx;
-					p.y-=vy;
+			for(var j:int=0;j<actionItemArray.length;j++){
+				//USE HITESTPOINT HERE!
+				//var outsideTouching:Boolean = actionItemArray[j].hitTestPoint(p.x-34,p.y+28,true) || actionItemArray[j].hitTestPoint(p.x,p.y+28,true) || actionItemArray[j].hitTestPoint(p.x+34,p.y+28,true) || actionItemArray[j].hitTestPoint(p.x+34,p.y,true) || actionItemArray[j].hitTestPoint(p.x+34,p.y-28,true) || actionItemArray[j].hitTestPoint(p.x,p.y-28,true) || actionItemArray[j].hitTestPoint(p.x-34,p.y,true) || actionItemArray[j].hitTestPoint(p.x-34,p.y-28,true);
+var outsideTouching:Boolean = actionItemArray[j].hitTestPoint(p.x,p.y-35,false);
+trace(actionItemArray[j].x+","+actionItemArray[j].y);
+trace(p.x+","+(p.y-28));
+trace(outsideTouching);
+				
+				
+				if(ctrlDown && true){
 					trace("blabhlah");
 					var tempType = actionItemArray[j].returnProperties()[0];
 					var tempMess = actionItemArray[j].returnProperties()[1];
 					
 					trace("interacted with: " + tempType + " with message " + tempMess);
 					if(tempType == "sign"){
-						trace("Sign says: " + tempMess);
+						createPrompt("message",tempMess,false);
 					}
 					else if(tempType == "door"){
 						trace("Door going to: " + tempMess);
+						if(tempMess == "CHANGEME"){
+							inside = true;
+							
+							var tempArray:Array = borderArray;
+							borderArray = null;
+							borderArray = new Array();
+							
+							var temp2Array:Array = actionItemArray;
+							actionItemArray = null;
+							actionItemArray = new Array();
+							
+							//inside specific area
+							//create borders
+							//bottom
+							if(tempMess == "CHANGEME"){
+								
+								//bottom
+								createBorders(-220,230,450,3);
+								//left wall
+								createBorders(-215,-161,0,400);
+								//right wall
+								createBorders(215,-161,0,400);
+								
+								//leftbuldge
+								createBorders(-222,-189,135,97);
+								//rightbuldge
+								createBorders(84,-189,123,97);
+								//upleft
+								createBorders(-190,-330,3,164);
+								//upright
+								createBorders(190,-330,3,164);
+								
+								
+								//trash1
+								registerAction(-160,3,20,20,"sign","CHANGEME");
+								//trash2
+								registerAction(-84,3,20,20,"sign","CHANGEME");
+								//trash3
+								registerAction(68,3,20,20,"sign","CHANGEME");
+								//trash4
+								registerAction(146,3,20,20,"sign","CHANGEME");
+								//rightstat
+								registerAction(-89,110,20,20,"sign","CHANGEME");
+								//leftstat
+								registerAction(64,115,20,20,"sign","CHANGEME");
+								p.x = 0;
+								p.y = 205;
+								this.x = 275;
+								this.y = 180;
+								this.gotoAndStop(11);
+							}
+							
+							this.addChild(blocker);
+							this.setChildIndex(blocker,2);
+							this.setChildIndex(p, this.numChildren - 1);//set player to be on top
+						}
+						
+						
 					}
+					
 				}
+				
+				
+				if(p.hitTestObject(actionItemArray[j])){
+						p.x-=vx;
+						p.y-=vy;
+				}
+				
 			}
 		}
 		
@@ -552,6 +684,8 @@
 			movePlayer();
 			checkCollision();
 			walk();
+			checkPrompt();
+			//trace(p.x+","+p.y);
 			//p.x = mouseX;
 			//p.y = mouseY;
 		 	//trace("hi");
