@@ -583,7 +583,16 @@
 			}
 			for(var j:int=0;j<actionItemArray.length;j++){
 				//USE HITESTPOINT HERE!
-				if(p.hitTestObject(actionItemArray[j]) && ctrlDown){
+				if(ctrlDown && 
+				   	(actionItemArray[j].hitTestPoint(p.x-34,p.y+28,true) ||
+				   	actionItemArray[j].hitTestPoint(p.x,p.y+28,true) ||
+					actionItemArray[j].hitTestPoint(p.x+34,p.y+28,true) ||
+					actionItemArray[j].hitTestPoint(p.x+34,p.y,true) ||
+					actionItemArray[j].hitTestPoint(p.x+34,p.y-28,true) ||
+					actionItemArray[j].hitTestPoint(p.x,p.y-28,true) ||
+					actionItemArray[j].hitTestPoint(p.x-34,p.y,true) ||
+					actionItemArray[j].hitTestPoint(p.x-34,p.y-28,true))
+				   ){
 					trace("blabhlah");
 					var tempType = actionItemArray[j].returnProperties()[0];
 					var tempMess = actionItemArray[j].returnProperties()[1];
