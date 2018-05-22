@@ -166,7 +166,9 @@
 					
 					//Sign1
 					registerAction(-92,-49,20,20,"sign","CHANGEME");
+					
 					//HouseDoor1
+					/*
 					registerAction(69,12,20,20,"door","CHANGEME");
 					//HouseDoor2
 					registerAction(69,-216,20,20,"door","CHANGEME");
@@ -179,6 +181,7 @@
 					//ShopDoor
 					registerAction(423,45,20,20,"door","CHANGEME");
 					
+					*/
 					//Set frame
 					this.gotoAndStop(3);
 					
@@ -583,16 +586,14 @@
 			}
 			for(var j:int=0;j<actionItemArray.length;j++){
 				//USE HITESTPOINT HERE!
-				if(ctrlDown && 
-				   	(actionItemArray[j].hitTestPoint(p.x-34,p.y+28,true) ||
-				   	actionItemArray[j].hitTestPoint(p.x,p.y+28,true) ||
-					actionItemArray[j].hitTestPoint(p.x+34,p.y+28,true) ||
-					actionItemArray[j].hitTestPoint(p.x+34,p.y,true) ||
-					actionItemArray[j].hitTestPoint(p.x+34,p.y-28,true) ||
-					actionItemArray[j].hitTestPoint(p.x,p.y-28,true) ||
-					actionItemArray[j].hitTestPoint(p.x-34,p.y,true) ||
-					actionItemArray[j].hitTestPoint(p.x-34,p.y-28,true))
-				   ){
+				//var outsideTouching:Boolean = actionItemArray[j].hitTestPoint(p.x-34,p.y+28,true) || actionItemArray[j].hitTestPoint(p.x,p.y+28,true) || actionItemArray[j].hitTestPoint(p.x+34,p.y+28,true) || actionItemArray[j].hitTestPoint(p.x+34,p.y,true) || actionItemArray[j].hitTestPoint(p.x+34,p.y-28,true) || actionItemArray[j].hitTestPoint(p.x,p.y-28,true) || actionItemArray[j].hitTestPoint(p.x-34,p.y,true) || actionItemArray[j].hitTestPoint(p.x-34,p.y-28,true);
+var outsideTouching:Boolean = actionItemArray[j].hitTestPoint(p.x,p.y-35,false);
+trace(actionItemArray[j].x+","+actionItemArray[j].y);
+trace(p.x+","+(p.y-28));
+trace(outsideTouching);
+				
+				
+				if(ctrlDown && true){
 					trace("blabhlah");
 					var tempType = actionItemArray[j].returnProperties()[0];
 					var tempMess = actionItemArray[j].returnProperties()[1];
