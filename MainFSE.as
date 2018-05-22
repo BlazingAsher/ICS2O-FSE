@@ -66,6 +66,7 @@
 			levelTwo.x = 275;
 			levelTwo.y = 200;
 			stage.addChild(levelTwo);
+			levelTwo.addEventListener(MouseEvent.CLICK,levelTwo.printMouse);
 		}
 		
 		public function levelThreeInit(){

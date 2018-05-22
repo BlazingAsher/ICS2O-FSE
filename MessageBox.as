@@ -38,7 +38,7 @@
 		public function setText(mess:String){
 			//store the message's letters into an array
 			var tempArray:Array = new Array();
-			tempArray = mess.split("");
+			tempArray = mess.toLowerCase().split("");
 			
 			//array to store the letters
 			letterArray = new Array();
@@ -192,6 +192,10 @@
 					userResponse = -2;
 				}
 			}
+		}
+		
+		public function handleKeyboardUp(e:KeyboardEvent){
+			
 		}
 		
 		public function revealLetter(e:TimerEvent){

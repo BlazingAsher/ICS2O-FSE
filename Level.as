@@ -24,6 +24,10 @@
 		var messageBox:MessageBox;
 		var prompting:Boolean;
 		var userResponse:int;
+		var inside:Boolean;
+		var blocker:Blocker = new Blocker();
+		
+		
 		
 		//w = 1600
 		//h = 668
@@ -32,6 +36,7 @@
 		//it has the same name as the class name - runs ONLY ONCE
 		{
 			prompting = false;
+			inside = false;
 			settings = tempSettings;
 			createAssets(levelNumber);
 			this.addEventListener(Event.ENTER_FRAME,gameLoop);
@@ -576,10 +581,9 @@
 					p.y-=vy;
 				}
 			}
-						for(var j:int=0;j<actionItemArray.length;j++){
+			for(var j:int=0;j<actionItemArray.length;j++){
+				//USE HITESTPOINT HERE!
 				if(p.hitTestObject(actionItemArray[j]) && ctrlDown){
-					p.x-=vx;
-					p.y-=vy;
 					trace("blabhlah");
 					var tempType = actionItemArray[j].returnProperties()[0];
 					var tempMess = actionItemArray[j].returnProperties()[1];
@@ -590,9 +594,74 @@
 					}
 					else if(tempType == "door"){
 						trace("Door going to: " + tempMess);
+						if(tempMess == "CHANGEME"){
+							inside = true;
+							
+							var tempArray:Array = borderArray;
+							borderArray = null;
+							borderArray = new Array();
+							
+							var temp2Array:Array = actionItemArray;
+							actionItemArray = null;
+							actionItemArray = new Array();
+							
+							//inside specific area
+							//create borders
+							//bottom
+							if(tempMess == "CHANGEME"){
+								
+								//bottom
+								createBorders(-220,230,450,3);
+								//left wall
+								createBorders(-215,-161,0,400);
+								//right wall
+								createBorders(215,-161,0,400);
+								
+								//leftbuldge
+								createBorders(-222,-189,135,97);
+								//rightbuldge
+								createBorders(84,-189,123,97);
+								//upleft
+								createBorders(-190,-330,3,164);
+								//upright
+								createBorders(190,-330,3,164);
+								
+								
+								//trash1
+								registerAction(-160,3,20,20,"sign","CHANGEME");
+								//trash2
+								registerAction(-84,3,20,20,"sign","CHANGEME");
+								//trash3
+								registerAction(68,3,20,20,"sign","CHANGEME");
+								//trash4
+								registerAction(146,3,20,20,"sign","CHANGEME");
+								//rightstat
+								registerAction(-89,110,20,20,"sign","CHANGEME");
+								//leftstat
+								registerAction(64,115,20,20,"sign","CHANGEME");
+								p.x = 0;
+								p.y = 205;
+								this.x = 275;
+								this.y = 180;
+								this.gotoAndStop(11);
+							}
+							
+							this.addChild(blocker);
+							this.setChildIndex(blocker,2);
+							this.setChildIndex(p, this.numChildren - 1);//set player to be on top
+						}
+						
+						
 					}
 					
 				}
+				
+				
+				if(p.hitTestObject(actionItemArray[j])){
+						p.x-=vx;
+						p.y-=vy;
+				}
+				
 			}
 		}
 		
@@ -606,6 +675,7 @@
 			checkCollision();
 			walk();
 			checkPrompt();
+			//trace(p.x+","+p.y);
 			//p.x = mouseX;
 			//p.y = mouseY;
 		 	//trace("hi");
