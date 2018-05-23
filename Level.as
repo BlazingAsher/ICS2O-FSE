@@ -27,17 +27,18 @@
 		var inside:Boolean;
 		var blocker:Blocker = new Blocker();
 		
-		
-		
 		//w = 1600
 		//h = 668
 		
-		public function Level(levelNumber:int,tempSettings:Dictionary)//CONSTRUCTOR - runs when the program starts
+		public function Level(levelNumber:int,dataArray:Array)//CONSTRUCTOR - runs when the program starts
 		//it has the same name as the class name - runs ONLY ONCE
 		{
 			prompting = false;
 			inside = false;
-			settings = tempSettings;
+			settings = dataArray[0];
+			p = new Ash();
+			p.setInventory(dataArray[1]);
+			
 			createAssets(levelNumber);
 			this.addEventListener(Event.ENTER_FRAME,gameLoop);
 			
@@ -47,12 +48,20 @@
 			return isFinished;
 		}
 		
-		public function getData(){
-			return settings;
+		public function transferData(){
+			var dataArray = new Array();
+			dataArray[0] = settings;
+			dataArray[1] = p.getInventory();
+			return dataArray;
 		}
 		
 		public function updateSettings(tempSettings:Dictionary){
 			tempSettings = settings;
+			if(settings[0]){
+				//turn on music
+			}else{
+				//turn off music
+			}
 		}
 		
 		public function createAssets(levelNumber:int){
@@ -73,8 +82,6 @@
 			messageBox.scaleY = 0.46;
 			messageBox.x = 0;
 			messageBox.y = 150;
-			
-			p = new Ash();
 			
 			switch(levelNumber){//create borders based on the level
 				case 0:
@@ -185,6 +192,10 @@
 					//Set frame
 					this.gotoAndStop(3);
 					
+					var tempInv:Array = p.getInventory();
+					tempInv[1].push("hi");
+					p.setInventory(tempInv);
+					
 					//Set player coordinates
 					
 					break;
@@ -245,7 +256,7 @@
 					//muesaemsign
 					registerAction(-123,-103,20,20,"sign","CHANGEME");
 					//pcdoor
-					registerAction(356,-139,20,20,"door","CHANGEME");
+					registerAction(356,-139,20,20,"door","hop");
 					
 					//Set frame
 					this.gotoAndStop(4);
@@ -255,7 +266,56 @@
 				case 4:
 					//Create barriers
 					
+					//house1
+					createBorders(-312,-244,220,95);
+					//gym
+					createBorders(168,-164,205,122);
+					//marthouse
+					createBorders(-61,97,469,101);
+					//pc
+					createBorders(-84,-213,138,115);
+					//bikeshop
+					createBorders(-345,39,110,163);
+					//bikes
+					createBorders(-385,91,27,81);
+					//houseledge1
+					createBorders(-376,-185,51,3);
+					//pcgymledge1
+					createBorders(67,-117,87,3);
+					//topleft
+					createBorders(-800,-334,310,233);
+					//bottomleft
+					createBorders(-800,31,275,303);
+					//bottomstrip
+					createBorders(-505,317,1002,3);
+					//topright
+					createBorders(593,-334,207,171);
+					//bottomright
+					createBorders(588,-61,212,395);
+					//fencevert
+					createBorders(503,-65,497,376);
+
+					
 					//Create ActionItem handlers
+					
+					//house1door
+					registerAction(-252,-170,20,20,"door","CHANGEME");
+					//house2door
+					registerAction(6,181,20,20,"door","CHANGEME");
+					//martdoor
+					registerAction(197,179,20,20,"door","CHANGEME");
+					//pcdoor
+					registerAction(-28,-105,20,20,"door","CHANGEME");
+					//sign
+					registerAction(-91,87,20,20,"sign","CHANGEME");
+					//bikesign
+					registerAction(-379,184,20,20,"sign","CHANGEME");
+					//gymdoor
+					registerAction(261,-44,20,20,"door","CHANGEME");
+					//gymsign
+					registerAction(137,-47,20,20,"sign","CHANGEME");
+					//bottomsign
+					registerAction(-121,314,20,20,"sign","CHANGEME");
 					
 					//Set frame
 					this.gotoAndStop(5);
@@ -282,6 +342,14 @@
 					//Set player coordinates
 					
 					break;
+				
+				case 7:
+				
+					break;
+					
+				case 8:
+				
+					break;
 			}
 			
 			vx = 0;
@@ -291,7 +359,7 @@
 			p.scaleX=0.7;
 			p.scaleY=0.7;
 			this.addChild(p);
-			
+			trace(p.x);
 		}
 		
 		public function createPrompt(type:String,promptText:String,yesno:Boolean){
@@ -388,6 +456,11 @@
 			if(e.keyCode == Keyboard.SHIFT){
 					isFinished = true;
 					//trace("done level1");
+			}
+			if(e.keyCode == Keyboard.INSERT){
+				trace(p.getInventory());
+				trace(p.getInventory()[0]['blatie']);
+				trace(p.getInventory()[1]);
 			}
 		}
 		
@@ -587,13 +660,14 @@
 			for(var j:int=0;j<actionItemArray.length;j++){
 				//USE HITESTPOINT HERE!
 				//var outsideTouching:Boolean = actionItemArray[j].hitTestPoint(p.x-34,p.y+28,true) || actionItemArray[j].hitTestPoint(p.x,p.y+28,true) || actionItemArray[j].hitTestPoint(p.x+34,p.y+28,true) || actionItemArray[j].hitTestPoint(p.x+34,p.y,true) || actionItemArray[j].hitTestPoint(p.x+34,p.y-28,true) || actionItemArray[j].hitTestPoint(p.x,p.y-28,true) || actionItemArray[j].hitTestPoint(p.x-34,p.y,true) || actionItemArray[j].hitTestPoint(p.x-34,p.y-28,true);
-var outsideTouching:Boolean = actionItemArray[j].hitTestPoint(p.x,p.y-35,false);
-trace(actionItemArray[j].x+","+actionItemArray[j].y);
-trace(p.x+","+(p.y-28));
-trace(outsideTouching);
+//var outsideTouching:Boolean = actionItemArray[j].hitTestPoint(p.x,p.y-35,false);
+var outsideTouching:Boolean = actionItemArray[j].hitTestObject(p);
+//trace(actionItemArray[j].x+","+actionItemArray[j].y);
+//trace(p.x+","+(p.y-28));
+//trace(outsideTouching);
 				
 				
-				if(ctrlDown && true){
+				if(ctrlDown && outsideTouching){
 					trace("blabhlah");
 					var tempType = actionItemArray[j].returnProperties()[0];
 					var tempMess = actionItemArray[j].returnProperties()[1];
@@ -604,7 +678,7 @@ trace(outsideTouching);
 					}
 					else if(tempType == "door"){
 						trace("Door going to: " + tempMess);
-						if(tempMess == "CHANGEME"){
+						if(tempMess == "CHANGEME"){//check if going indoors
 							inside = true;
 							
 							var tempArray:Array = borderArray;
@@ -660,7 +734,13 @@ trace(outsideTouching);
 							this.setChildIndex(blocker,2);
 							this.setChildIndex(p, this.numChildren - 1);//set player to be on top
 						}
-						
+						else{
+							trace("hop");
+							for each(var val in p.getInventory()[0]){
+								trace(val);
+								val[0] = 100;
+							}
+						}
 						
 					}
 					
