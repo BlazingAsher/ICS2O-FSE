@@ -24,7 +24,8 @@
 			
 			var pokemon:Dictionary = new Dictionary();
 			pokemon['blatie'] = new Array(1,"lol","lol");
-			var items:Array = new Array("lol");
+			var items:Dictionary = new Dictionary();
+			items['testtest'] = 1;
 			inv = new Array(pokemon,items);
 			
 			level = 0;

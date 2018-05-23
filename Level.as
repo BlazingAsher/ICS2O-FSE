@@ -5,9 +5,13 @@
 	import flash.utils.*;
 	import flash.ui.Keyboard;
 	import flash.geom.Point;
+	import flash.media.Sound;
+	import flash.media.SoundChannel;
+	import flash.media.SoundTransform;
+	import com.greensock.*;
+	import com.greensock.easing.*;
 	public class Level extends MovieClip
 	{
-
 		var levelTimer:Timer;
 		var vx,vy:int;
 		var p:Ash;
@@ -26,6 +30,10 @@
 		var userResponse:int;
 		var inside:Boolean;
 		var blocker:Blocker = new Blocker();
+		var battling:Boolean;
+		var bgMusic:BgMusic;
+		var bgMusicChannel:SoundChannel;
+		var bgSoundTransform:SoundTransform;
 		
 		//w = 1600
 		//h = 668
@@ -35,7 +43,11 @@
 		{
 			prompting = false;
 			inside = false;
+			battling = false;
+			bgMusic = new BgMusic();
+			
 			settings = dataArray[0];
+			updateSettings(settings);
 			p = new Ash();
 			p.setInventory(dataArray[1]);
 			
@@ -56,12 +68,32 @@
 		}
 		
 		public function updateSettings(tempSettings:Dictionary){
-			tempSettings = settings;
-			if(settings[0]){
-				//turn on music
+			settings = tempSettings;
+			if(settings['music']){
+				bgMusicChannel = bgMusic.play(0,int.MAX_VALUE);
+				bgSoundTransform = bgMusicChannel.soundTransform;
+				bgSoundTransform.volume = 0;
+				bgMusicChannel.soundTransform = bgSoundTransform;
+				TweenMax.to(bgMusicChannel,3,{volume:0.75});
 			}else{
+				try{
+					bgMusicChannel.stop();
+				}
+				catch(error:Error){
+					trace("error!");
+				}
 				//turn off music
 			}
+		}
+		
+		public function exitLevel(){
+			try{
+				bgMusicChannel.stop();
+			}
+			catch(error:Error){
+				trace("error");
+			}
+			isFinished = true;
 		}
 		
 		public function createAssets(levelNumber:int){
@@ -193,7 +225,7 @@
 					this.gotoAndStop(3);
 					
 					var tempInv:Array = p.getInventory();
-					tempInv[1].push("hi");
+					tempInv[1]['fgdg'] = 2;
 					p.setInventory(tempInv);
 					
 					//Set player coordinates
@@ -256,7 +288,7 @@
 					//muesaemsign
 					registerAction(-123,-103,20,20,"sign","CHANGEME");
 					//pcdoor
-					registerAction(356,-139,20,20,"door","hop");
+					registerAction(356,-139,20,20,"door","pc");
 					
 					//Set frame
 					this.gotoAndStop(4);
@@ -267,7 +299,7 @@
 					//Create barriers
 					
 					//house1
-					createBorders(-312,-244,220,95);
+					5createBorders(-312,-244,220,95);
 					//gym
 					createBorders(168,-164,205,122);
 					//marthouse
@@ -363,6 +395,15 @@
 		}
 		
 		public function createPrompt(type:String,promptText:String,yesno:Boolean){
+			var myPoint:Point = this.globalToLocal(new Point(275,350));
+			
+			trace ("x: " + myPoint.x); // output: -100 
+			trace ("y: " + myPoint.y); // output: -100
+			
+			
+			messageBox.x = myPoint.x;
+			messageBox.y = myPoint.y;
+			
 			this.addChild(messageBox);
 			messageBox.setText(promptText);
 			messageBox.changeBox(type);
@@ -422,6 +463,9 @@
 				//trace("prompting");
 				messageBox.handleKeyboardDown(e);
 			}
+			else if(battling){
+				
+			}
 			else if(!walkingDisabled){
 				if(e.keyCode == Keyboard.UP){
 					doWalkingAnimation(true,2);
@@ -454,13 +498,16 @@
 				}
 			}
 			if(e.keyCode == Keyboard.SHIFT){
-					isFinished = true;
+					exitLevel();
 					//trace("done level1");
 			}
 			if(e.keyCode == Keyboard.INSERT){
 				trace(p.getInventory());
 				trace(p.getInventory()[0]['blatie']);
 				trace(p.getInventory()[1]);
+			}
+			if(e.keyCode == Keyboard.END){
+				createPrompt("message","saflgsafglafhlf",false);
 			}
 		}
 		
@@ -564,7 +611,7 @@
 		}
 		
 		
-		function walk(){
+		public function walk(){
 			//Codes:
 			//0 left, 1 right, 2 up, 3 down
 			
@@ -678,7 +725,8 @@ var outsideTouching:Boolean = actionItemArray[j].hitTestObject(p);
 					}
 					else if(tempType == "door"){
 						trace("Door going to: " + tempMess);
-						if(tempMess == "CHANGEME"){//check if going indoors
+						var tempMessArray:Array = tempMess.split(",");
+						if(tempMessArray[0] == "gym" || tempMessArray[0] == "house"){//check if going indoors
 							inside = true;
 							
 							var tempArray:Array = borderArray;
@@ -691,55 +739,78 @@ var outsideTouching:Boolean = actionItemArray[j].hitTestObject(p);
 							
 							//inside specific area
 							//create borders
-							//bottom
-							if(tempMess == "CHANGEME"){
+							if(tempMessArray[0] == "gym"){
+								if(tempMessArray[1].parseInt() % 3 == 0){
+									//bottom
+									createBorders(-220,230,450,3);
+									//left wall
+									createBorders(-215,-161,0,400);
+									//right wall
+									createBorders(215,-161,0,400);
+									
+									//leftbuldge
+									createBorders(-222,-189,135,97);
+									//rightbuldge
+									createBorders(84,-189,123,97);
+									//upleft
+									createBorders(-190,-330,3,164);
+									//upright
+									createBorders(190,-330,3,164);
+									
+									
+									//trash1
+									registerAction(-160,3,20,20,"sign","CHANGEME");
+									//trash2
+									registerAction(-84,3,20,20,"sign","CHANGEME");
+									//trash3
+									registerAction(68,3,20,20,"sign","CHANGEME");
+									//trash4
+									registerAction(146,3,20,20,"sign","CHANGEME");
+									//rightstat
+									registerAction(-89,110,20,20,"sign","CHANGEME");
+									//leftstat
+									registerAction(64,115,20,20,"sign","CHANGEME");
+									p.x = 0;
+									p.y = 205;
+									this.x = 275;
+									this.y = 180;
+									this.gotoAndStop(11);
+								}
+								else if(tempMessArray[1].parseInt() % 3 == 1){
+									
+								}
+								else if(tempMessArray[1].parseInt() % 3 == 2){
+									
+								}
 								
-								//bottom
-								createBorders(-220,230,450,3);
-								//left wall
-								createBorders(-215,-161,0,400);
-								//right wall
-								createBorders(215,-161,0,400);
-								
-								//leftbuldge
-								createBorders(-222,-189,135,97);
-								//rightbuldge
-								createBorders(84,-189,123,97);
-								//upleft
-								createBorders(-190,-330,3,164);
-								//upright
-								createBorders(190,-330,3,164);
-								
-								
-								//trash1
-								registerAction(-160,3,20,20,"sign","CHANGEME");
-								//trash2
-								registerAction(-84,3,20,20,"sign","CHANGEME");
-								//trash3
-								registerAction(68,3,20,20,"sign","CHANGEME");
-								//trash4
-								registerAction(146,3,20,20,"sign","CHANGEME");
-								//rightstat
-								registerAction(-89,110,20,20,"sign","CHANGEME");
-								//leftstat
-								registerAction(64,115,20,20,"sign","CHANGEME");
-								p.x = 0;
-								p.y = 205;
-								this.x = 275;
-								this.y = 180;
-								this.gotoAndStop(11);
 							}
-							
+							else if(tempMessArray[0] == "house"){
+								if(tempMessArray[1].parseInt() % 3 == 0){
+									
+								}
+								else if(tempMessArray[1].parseInt() % 3 == 1){
+									
+								}
+								else if(tempMessArray[1].parseInt() % 3 == 2){
+									
+								}
+							}
 							this.addChild(blocker);
 							this.setChildIndex(blocker,2);
 							this.setChildIndex(p, this.numChildren - 1);//set player to be on top
 						}
-						else{
-							trace("hop");
-							for each(var val in p.getInventory()[0]){
-								trace(val);
-								val[0] = 100;
+						else if(tempMessArray[0] == "pc"){
+							trace("pc");
+							for each(var pokemon in p.getInventory()[0]){
+								trace(pokemon);
+								pokemon[0] = 100;
 							}
+							
+							createPrompt("message","Your%pokemon%have%been%%%%%healed",false);
+							
+						}
+						else if(tempMessArray[0] == "shop"){
+							
 						}
 						
 					}
