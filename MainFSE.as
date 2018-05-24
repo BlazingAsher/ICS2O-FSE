@@ -2,6 +2,7 @@
 {
 	import flash.display.MovieClip;
 	import flash.events.*;
+	import flash.utils.*;
 	import flash.ui.Keyboard;
 	public class MainFSE extends MovieClip
 	{
@@ -10,11 +11,23 @@
 		var sideMenu:SideMenu;
 		var keyboardCapture:String;
 		var level:int;
+		var settings:Dictionary;
+		var inv:Array;
 		
 		public function MainFSE()//CONSTRUCTOR - runs when the program starts
 		//it has the same name as the class name - runs ONLY ONCE
 		{
 			//menu has level number -1
+			
+			settings = new Dictionary();
+			settings['music'] = true;
+			
+			var pokemon:Dictionary = new Dictionary();
+			pokemon['blatie'] = new Array(1,"lol","lol");
+			var items:Dictionary = new Dictionary();
+			items['testtest'] = 1;
+			inv = new Array(pokemon,items);
+			
 			level = 0;
 			
 			levelTutInit();
@@ -34,13 +47,17 @@
 		}
 		
 		public function sideMenuInit(){
-			sideMenu = new SideMenu("sidebar");
+			sideMenu = new SideMenu("sidebar",settings);
 			sideMenu.x = 575;
 			sideMenu.y = 200;
 		}
 		
 		public function levelTutInit(){
-			levelTut = new Level(0);
+			var dataArray = new Array();
+			dataArray[0] = settings;
+			dataArray[1] = inv;
+			
+			levelTut = new Level(0,dataArray);
 			levelTut.x = 275;
 			levelTut.y = 200;
 			trace("added tut");
@@ -48,7 +65,12 @@
 		}
 		
 		public function levelOneInit(){
-			levelOne = new Level(1);
+			var dataArray = new Array();
+			dataArray[0] = settings;
+			dataArray[1] = inv;
+			trace(dataArray[1]);
+			
+			levelOne = new Level(1,dataArray);
 			levelOne.x = 275;
 			levelOne.y = 200;
 			stage.addChild(levelOne);
@@ -56,35 +78,57 @@
 		}
 		
 		public function levelTwoInit(){
-			levelTwo = new Level(2);
+			var dataArray = new Array();
+			dataArray[0] = settings;
+			dataArray[1] = inv;
+			
+			levelTwo = new Level(2,dataArray);
 			levelTwo.x = 275;
 			levelTwo.y = 200;
 			stage.addChild(levelTwo);
+			levelTwo.addEventListener(MouseEvent.CLICK,levelTwo.printMouse);
 		}
 		
 		public function levelThreeInit(){
-			levelThree = new Level(3);
+			var dataArray = new Array();
+			dataArray[0] = settings;
+			dataArray[1] = inv;
+			
+			levelThree = new Level(3,dataArray);
 			levelThree.x = 275;
 			levelThree.y = 200;
 			stage.addChild(levelThree);
 		}
 		
 		public function levelFourInit(){
-			levelFour = new Level(4);
+			var dataArray = new Array();
+			dataArray[0] = settings;
+			dataArray[1] = inv;
+			
+			levelFour = new Level(4,dataArray);
 			levelFour.x = 275;
 			levelFour.y = 200;
 			stage.addChild(levelFour);
+			levelFour.addEventListener(MouseEvent.CLICK,levelFour.printMouse);
 		}
 		
 		public function levelFiveInit(){
-			levelFive = new Level(5);
+			var dataArray = new Array();
+			dataArray[0] = settings;
+			dataArray[1] = inv;
+			
+			levelFive = new Level(5,dataArray);
 			levelFive.x = 275;
 			levelFive.y = 200;
 			stage.addChild(levelFive);
 		}
 		
 		public function levelSixInit(){
-			levelSix = new Level(6);
+			var dataArray = new Array();
+			dataArray[0] = settings;
+			dataArray[1] = inv;
+			
+			levelSix = new Level(6,dataArray);
 			levelSix.x = 275;
 			levelSix.y = 200;
 			stage.addChild(levelSix);
@@ -102,7 +146,7 @@
 				trace('added');
 			}
 			
-			//gyms are -3, battle is -2, menu is -1, tutorial is 0, levels are 1-6, maze is 7, outside of final battle is 8, inside of final battle is 9
+			//gyms are -3, battle is -2, menu is -1, tutorial is 0, levels are 1-6, maze is 7, outside of final battle is 8
 			
 			switch(level){
 				case -2:
@@ -131,6 +175,12 @@
 					break;
 				case 6:
 					levelSix.handleKeyboardDown(e);
+					break;
+				case 7:
+				
+					break;
+				case 8:
+				
 					break;
 				default:
 					trace("other level");
@@ -167,12 +217,19 @@
 				case 6:
 					levelSix.handleKeyboardUp(e);
 					break;
+				case 7:
+				
+					break;
+				case 8:
+				
+					break;
 				default:
 					trace("other level");
 			}
 		}
 		
 		public function checkLevelDone(){
+			var tempArray:Array = new Array();
 			switch(level){
 				case -2:
 					if(battleArena.getIsFinished()){
@@ -190,6 +247,7 @@
 						trace(level);
 						trace("newlvl" + level);
 						trace("newkey" + keyboardCapture);
+						settings = sideMenu.getSettings();
 						stage.removeChild(sideMenu);
 						trace('deleted');
 					}
@@ -206,6 +264,10 @@
 					if(levelOne.getIsFinished()){
 						trace("received level1 done");
 						stage.removeChild(levelOne);
+						
+						tempArray= levelOne.transferData();
+						inv = tempArray[1];
+						
 						level = 2;
 						levelOne = null;
 						levelTwoInit();
@@ -215,6 +277,10 @@
 					if(levelTwo.getIsFinished()){
 						trace("received level2 done");
 						stage.removeChild(levelTwo);
+						
+						tempArray = levelTwo.transferData();
+						inv = tempArray[1];
+						
 						level = 3;
 						levelTwo = null;
 						levelThreeInit();
@@ -224,6 +290,10 @@
 					if(levelThree.getIsFinished()){
 						trace("received level3 done");
 						stage.removeChild(levelThree);
+						
+						tempArray = levelThree.transferData();
+						inv = tempArray[1];
+						
 						level = 4;
 						levelThree = null;
 						levelFourInit();
@@ -233,6 +303,10 @@
 					if(levelFour.getIsFinished()){
 						trace("received level1 done");
 						stage.removeChild(levelFour);
+						
+						tempArray = levelFour.transferData();
+						inv = tempArray[1];
+						
 						level = 5;
 						levelFour = null;
 						levelFiveInit();
@@ -242,6 +316,10 @@
 					if(levelFive.getIsFinished()){
 						trace("received level1 done");
 						stage.removeChild(levelFive);
+						
+						tempArray = levelFive.transferData();
+						inv = tempArray[1];
+						
 						level = 6;
 						levelFive = null;
 						levelSixInit();
@@ -251,10 +329,21 @@
 					if(levelSix.getIsFinished()){
 						trace("received level1 done");
 						stage.removeChild(levelSix);
+						
+						tempArray = levelSix.transferData();
+						inv = tempArray[1];
+						
 						level = 7;
 						levelOne = null;
 						//levelTwoInit();
 					}
+					break;
+					
+				case 7:
+				
+					break;
+				case 8:
+				
 					break;
 			}
 		}

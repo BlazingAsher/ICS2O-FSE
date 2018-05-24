@@ -3,15 +3,16 @@
 	import flash.display.MovieClip;
 	import flash.events.*;
 	import flash.ui.*;
-	import flash.utils.Timer;
+	import flash.utils.*;
 	public class SideMenu extends MovieClip
 	{
 		var isFinished:Boolean;
 		var lastLevel:int;
 		var myTimer:Timer;
 		var canExit:Boolean;
+		var settings:Dictionary;
 
-		public function SideMenu(type:String)//CONSTRUCTOR - runs when the program starts
+		public function SideMenu(type:String,tempSettings:Dictionary)//CONSTRUCTOR - runs when the program starts
 		//it has the same name as the class name - runs ONLY ONCE
 		{
 			canExit = false;
@@ -22,17 +23,19 @@
 			if(type == "sidebar"){
 				trace("sidebar!");
 			}
-			else if(type == "fightrun"){
-				trace("fight or run?");
-			}
-			else if(type == "chooseattack"){
-				trace("choose an attack!");
-			}
 			
 		}//end CONSTRUCTOR
 		
 		public function getIsFinished(){
 			return isFinished;
+		}
+		
+		public function pushSettings(tempSettings:Dictionary){
+			settings = tempSettings;
+		}
+		
+		public function getSettings(){
+			return settings;
 		}
 		
 		public function levelOnOpen(){

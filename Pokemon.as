@@ -5,6 +5,8 @@
 	public class Pokemon extends MovieClip
 	{
 		var pokeType:String;
+		var lightningArr,fireArr,metalArr,airArr,ghostArr,bossArr,movesArr:Array;
+		var pMove:int;
 		
 		public function Pokemon(tempType:String)//CONSTRUCTOR - runs when the program starts
 		//it has the same name as the class name - runs ONLY ONCE
@@ -13,7 +15,11 @@
 		    this.addEventListener(Event.ENTER_FRAME,gameLoop);
 			trace("created");
 			this.gotoAndStop(1);
-			//sprite notes
+			
+			
+//--------------------------------------------------------
+			
+			//SPRITE NOTES
 			
 			//arceus      1-72
 			//articuno    73-96
@@ -32,11 +38,149 @@
 			//onix        
 			//rapidash    
 			
+//----------------------------------------------------------
+			
+			
+			//POKEMON MOVES LIST
+			
+			
+			//LIGHTNING Type ====== Pikachu, Zapdos
+			//Shock Wave
+			//Zap Cannon
+			//Thunderbolt
+			//Electroweb
+			//Charge Beam
+			//Discharge
+			//Ion Deluge
+			//Bolt Strike
+			//Eerie impulse
+			//Volt Switch
+			
+			
+			//FIRE Type ============ Moltres, Charizard
+			//Inferno Overdrive
+			//Magma Storm
+			//Lava Plume
+			//Blue Flare
+			//Flamethrower
+			//Incinerate
+			//Heat Wave
+			//Eruption
+			//Fire Blast
+			//Overheat
+			
+			
+			//METAL Type ======= Registeel, Skarmory
+			//Fissure
+			//Earthquake
+			//Magnitude
+			//Precipice Blades
+			//Tectonic Rage
+			//Thousand Waves
+			//Mud Shot
+			//Land's Wrath
+			//Bone Rush
+			//Bulldoze
+			
+			
+			//AIR Type ========= Arceus, Articuno
+			//Aerial Ace
+			//Dragon Ascent
+			//Oblivion Wing
+			//Supersonic Skystrike
+			//Tailwind
+			//Hurricane
+			//Aeroblast
+			//Air Slash
+			//Gust
+			//Beak Blast
+			
+			
+			//GHOST Type ======== Latios, Latias
+			//Black Hole Eclipse
+			//Dark Pulse
+			//Hyperspace Fury
+			//Night Slash
+			//Payback
+			//Sucker Punch
+			//Dark Void
+			//Hone Claws
+			//Knock off
+			//Torment
+			
+			
+			//Darkrai
+			//
+			//
+			//
+			//
+			
+			
+			//Gyarados
+			//
+			//
+			//
+			//
+			
+			
+			//Mew
+			//
+			//
+			//
+			//
+			
+			
+			//Mewtwo
+			//
+			//
+			//
+			//
+			
+			
+			//Onix
+			//
+			//
+			//
+			//
+			
+			
+			//Rapidash
+			//
+			//
+			//
+			//
+			
+//-----------------------------------------------
+
+			pMove = 0;
+			movesArr = new Array();
+			
+			lightningArr = new Array('Shock Wave','Zap Cannon','Thunderbolt','Electroweb','Charge Beam','Discharge','Ion Deluge','Bolt Strike','Eerie Impulse','Volt Switch');
+			
+			for(var i:int = 0;i<lightningArr.length;i++){
+				pMove = Math.random()*10;
+				//trace(pMove);
+				trace(lightningArr[pMove]);
+				
+				var dup:Boolean = false;
+				
+				for(var j:int=0;j<movesArr.length;j++){
+					if(movesArr[j] == lightningArr[i]){
+						dup = true;
+					}
+				}
+				
+				if(!dup){
+					movesArr.push(lightningArr[pMove]);
+				}
+			}
+			
+			
 		}//end CONSTRUCTOR
 		
 		public function gameLoop(e:Event)
 		{
-			trace(this.currentFrame);
+			//trace(this.currentFrame);
 			
 			if(pokeType == "arceus"){
 				trace("jay is smart");
