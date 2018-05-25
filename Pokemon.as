@@ -156,7 +156,6 @@
 			movesArr = new Array();
 			
 			lightningArr = new Array('Shock Wave','Zap Cannon','Thunderbolt','Electroweb','Charge Beam','Discharge','Ion Deluge','Bolt Strike','Eerie Impulse','Volt Switch');
-			
 			for(var i:int = 0;i<lightningArr.length;i++){
 				pMove = Math.random()*10;
 				//trace(pMove);
@@ -172,6 +171,26 @@
 				
 				if(!dup){
 					movesArr.push(lightningArr[pMove]);
+				}
+			}
+			
+			
+			fireArr = new Array();
+			for(var i:int = 0;i<fireArr.length;i++){
+				pMove = Math.random()*10;
+				//trace(pMove);
+				trace(fireArr[pMove]);
+				
+				var dup:Boolean = false;
+				
+				for(var j:int=0;j<movesArr.length;j++){
+					if(movesArr[j] == fireArr[i]){
+						dup = true;
+					}
+				}
+				
+				if(!dup){
+					movesArr.push(fireArr[pMove]);
 				}
 			}
 			
