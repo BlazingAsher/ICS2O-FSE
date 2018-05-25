@@ -34,6 +34,7 @@
 		var bgMusic:BgMusic;
 		var bgMusicChannel:SoundChannel;
 		var bgSoundTransform:SoundTransform;
+		var arena:Arena;
 		
 		//w = 1600
 		//h = 668
@@ -72,9 +73,9 @@
 			if(settings['music']){
 				bgMusicChannel = bgMusic.play(0,int.MAX_VALUE);
 				bgSoundTransform = bgMusicChannel.soundTransform;
-				bgSoundTransform.volume = 0;
+				bgSoundTransform.volume = 0.75;
 				bgMusicChannel.soundTransform = bgSoundTransform;
-				TweenMax.to(bgMusicChannel,3,{volume:0.75});
+				TweenMax.from(bgMusicChannel,3,{volume:0});
 			}else{
 				try{
 					bgMusicChannel.stop();
@@ -204,7 +205,7 @@
 					//Create ActionItem handlers
 					
 					//Sign1
-					registerAction(-92,-49,20,20,"sign","CHANGEME");
+					registerAction(-92,-49,20,20,"trainer","CHANGEME");
 					
 					//HouseDoor1
 					/*
@@ -458,13 +459,21 @@
 			this.addChild(actionItem);
 		}
 		
+		public function startBattle(gym:String){
+			if(!battling){
+				arena = new Arena(p.getInventory()[0]);
+				this.addChild(arena);
+				battling = true;
+			}
+		}
+		
 		public function handleKeyboardDown(e:KeyboardEvent){
 			if(prompting){
 				//trace("prompting");
 				messageBox.handleKeyboardDown(e);
 			}
 			else if(battling){
-				
+				arena.handleKeyboardDown(e);
 			}
 			else if(!walkingDisabled){
 				if(e.keyCode == Keyboard.UP){
@@ -723,6 +732,7 @@ var outsideTouching:Boolean = actionItemArray[j].hitTestObject(p);
 					if(tempType == "sign"){
 						createPrompt("message",tempMess,false);
 					}
+					
 					else if(tempType == "door"){
 						trace("Door going to: " + tempMess);
 						var tempMessArray:Array = tempMess.split(",");
@@ -799,20 +809,19 @@ var outsideTouching:Boolean = actionItemArray[j].hitTestObject(p);
 							this.setChildIndex(blocker,2);
 							this.setChildIndex(p, this.numChildren - 1);//set player to be on top
 						}
-						else if(tempMessArray[0] == "pc"){
-							trace("pc");
-							for each(var pokemon in p.getInventory()[0]){
-								trace(pokemon);
-								pokemon[0] = 100;
+							else if(tempMessArray[0] == "pc"){
+								trace("pc");
+								for each(var pokemon in p.getInventory()[0]){
+									trace(pokemon);
+									pokemon[0] = 100;
+								}
+								
+								createPrompt("message","Your%pokemon%have%been%%%%%healed",false);
+								
 							}
-							
-							createPrompt("message","Your%pokemon%have%been%%%%%healed",false);
-							
-						}
-						else if(tempMessArray[0] == "shop"){
-							
-						}
-						
+					}
+					else if(tempType == "trainer"){
+						startBattle(tempMess);
 					}
 					
 				}
@@ -836,6 +845,12 @@ var outsideTouching:Boolean = actionItemArray[j].hitTestObject(p);
 			checkCollision();
 			walk();
 			checkPrompt();
+			var children:Array = [];
+
+   for (var i:uint = 0; i < this.numChildren; i++)
+      children.push(this.getChildAt(i));
+
+   trace(children);
 			//trace(p.x+","+p.y);
 			//p.x = mouseX;
 			//p.y = mouseY;
