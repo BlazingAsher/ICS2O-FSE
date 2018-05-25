@@ -5,9 +5,13 @@
 	import flash.utils.*;
 	import flash.ui.Keyboard;
 	import flash.geom.Point;
+	import flash.media.Sound;
+	import flash.media.SoundChannel;
+	import flash.media.SoundTransform;
+	import com.greensock.*;
+	import com.greensock.easing.*;
 	public class Level extends MovieClip
 	{
-
 		var levelTimer:Timer;
 		var vx,vy:int;
 		var p:Ash;
@@ -26,18 +30,28 @@
 		var userResponse:int;
 		var inside:Boolean;
 		var blocker:Blocker = new Blocker();
-		
-		
+		var battling:Boolean;
+		var bgMusic:BgMusic;
+		var bgMusicChannel:SoundChannel;
+		var bgSoundTransform:SoundTransform;
+		var arena:Arena;
 		
 		//w = 1600
 		//h = 668
 		
-		public function Level(levelNumber:int,tempSettings:Dictionary)//CONSTRUCTOR - runs when the program starts
+		public function Level(levelNumber:int,dataArray:Array)//CONSTRUCTOR - runs when the program starts
 		//it has the same name as the class name - runs ONLY ONCE
 		{
 			prompting = false;
 			inside = false;
-			settings = tempSettings;
+			battling = false;
+			bgMusic = new BgMusic();
+			
+			settings = dataArray[0];
+			updateSettings(settings);
+			p = new Ash();
+			p.setInventory(dataArray[1]);
+			
 			createAssets(levelNumber);
 			this.addEventListener(Event.ENTER_FRAME,gameLoop);
 			
@@ -47,12 +61,40 @@
 			return isFinished;
 		}
 		
-		public function getData(){
-			return settings;
+		public function transferData(){
+			var dataArray = new Array();
+			dataArray[0] = settings;
+			dataArray[1] = p.getInventory();
+			return dataArray;
 		}
 		
 		public function updateSettings(tempSettings:Dictionary){
-			tempSettings = settings;
+			settings = tempSettings;
+			if(settings['music']){
+				bgMusicChannel = bgMusic.play(0,int.MAX_VALUE);
+				bgSoundTransform = bgMusicChannel.soundTransform;
+				bgSoundTransform.volume = 0.75;
+				bgMusicChannel.soundTransform = bgSoundTransform;
+				TweenMax.from(bgMusicChannel,3,{volume:0});
+			}else{
+				try{
+					bgMusicChannel.stop();
+				}
+				catch(error:Error){
+					trace("error!");
+				}
+				//turn off music
+			}
+		}
+		
+		public function exitLevel(){
+			try{
+				bgMusicChannel.stop();
+			}
+			catch(error:Error){
+				trace("error");
+			}
+			isFinished = true;
 		}
 		
 		public function createAssets(levelNumber:int){
@@ -73,8 +115,6 @@
 			messageBox.scaleY = 0.46;
 			messageBox.x = 0;
 			messageBox.y = 150;
-			
-			p = new Ash();
 			
 			switch(levelNumber){//create borders based on the level
 				case 0:
@@ -165,7 +205,7 @@
 					//Create ActionItem handlers
 					
 					//Sign1
-					registerAction(-92,-49,20,20,"sign","CHANGEME");
+					registerAction(-92,-49,20,20,"trainer","CHANGEME");
 					
 					//HouseDoor1
 					/*
@@ -184,6 +224,10 @@
 					*/
 					//Set frame
 					this.gotoAndStop(3);
+					
+					var tempInv:Array = p.getInventory();
+					tempInv[1]['fgdg'] = 2;
+					p.setInventory(tempInv);
 					
 					//Set player coordinates
 					
@@ -245,7 +289,7 @@
 					//muesaemsign
 					registerAction(-123,-103,20,20,"sign","CHANGEME");
 					//pcdoor
-					registerAction(356,-139,20,20,"door","CHANGEME");
+					registerAction(356,-139,20,20,"door","pc");
 					
 					//Set frame
 					this.gotoAndStop(4);
@@ -255,7 +299,56 @@
 				case 4:
 					//Create barriers
 					
+					//house1
+					5createBorders(-312,-244,220,95);
+					//gym
+					createBorders(168,-164,205,122);
+					//marthouse
+					createBorders(-61,97,469,101);
+					//pc
+					createBorders(-84,-213,138,115);
+					//bikeshop
+					createBorders(-345,39,110,163);
+					//bikes
+					createBorders(-385,91,27,81);
+					//houseledge1
+					createBorders(-376,-185,51,3);
+					//pcgymledge1
+					createBorders(67,-117,87,3);
+					//topleft
+					createBorders(-800,-334,310,233);
+					//bottomleft
+					createBorders(-800,31,275,303);
+					//bottomstrip
+					createBorders(-505,317,1002,3);
+					//topright
+					createBorders(593,-334,207,171);
+					//bottomright
+					createBorders(588,-61,212,395);
+					//fencevert
+					createBorders(503,-65,497,376);
+
+					
 					//Create ActionItem handlers
+					
+					//house1door
+					registerAction(-252,-170,20,20,"door","CHANGEME");
+					//house2door
+					registerAction(6,181,20,20,"door","CHANGEME");
+					//martdoor
+					registerAction(197,179,20,20,"door","CHANGEME");
+					//pcdoor
+					registerAction(-28,-105,20,20,"door","CHANGEME");
+					//sign
+					registerAction(-91,87,20,20,"sign","CHANGEME");
+					//bikesign
+					registerAction(-379,184,20,20,"sign","CHANGEME");
+					//gymdoor
+					registerAction(261,-44,20,20,"door","CHANGEME");
+					//gymsign
+					registerAction(137,-47,20,20,"sign","CHANGEME");
+					//bottomsign
+					registerAction(-121,314,20,20,"sign","CHANGEME");
 					
 					//Set frame
 					this.gotoAndStop(5);
@@ -282,6 +375,14 @@
 					//Set player coordinates
 					
 					break;
+				
+				case 7:
+				
+					break;
+					
+				case 8:
+				
+					break;
 			}
 			
 			vx = 0;
@@ -291,10 +392,19 @@
 			p.scaleX=0.7;
 			p.scaleY=0.7;
 			this.addChild(p);
-			
+			trace(p.x);
 		}
 		
 		public function createPrompt(type:String,promptText:String,yesno:Boolean){
+			var myPoint:Point = this.globalToLocal(new Point(275,350));
+			
+			trace ("x: " + myPoint.x); // output: -100 
+			trace ("y: " + myPoint.y); // output: -100
+			
+			
+			messageBox.x = myPoint.x;
+			messageBox.y = myPoint.y;
+			
 			this.addChild(messageBox);
 			messageBox.setText(promptText);
 			messageBox.changeBox(type);
@@ -349,10 +459,21 @@
 			this.addChild(actionItem);
 		}
 		
+		public function startBattle(gym:String){
+			if(!battling){
+				arena = new Arena(p.getInventory()[0]);
+				this.addChild(arena);
+				battling = true;
+			}
+		}
+		
 		public function handleKeyboardDown(e:KeyboardEvent){
 			if(prompting){
 				//trace("prompting");
 				messageBox.handleKeyboardDown(e);
+			}
+			else if(battling){
+				arena.handleKeyboardDown(e);
 			}
 			else if(!walkingDisabled){
 				if(e.keyCode == Keyboard.UP){
@@ -386,8 +507,16 @@
 				}
 			}
 			if(e.keyCode == Keyboard.SHIFT){
-					isFinished = true;
+					exitLevel();
 					//trace("done level1");
+			}
+			if(e.keyCode == Keyboard.INSERT){
+				trace(p.getInventory());
+				trace(p.getInventory()[0]['blatie']);
+				trace(p.getInventory()[1]);
+			}
+			if(e.keyCode == Keyboard.END){
+				createPrompt("message","saflgsafglafhlf",false);
 			}
 		}
 		
@@ -491,7 +620,7 @@
 		}
 		
 		
-		function walk(){
+		public function walk(){
 			//Codes:
 			//0 left, 1 right, 2 up, 3 down
 			
@@ -587,13 +716,14 @@
 			for(var j:int=0;j<actionItemArray.length;j++){
 				//USE HITESTPOINT HERE!
 				//var outsideTouching:Boolean = actionItemArray[j].hitTestPoint(p.x-34,p.y+28,true) || actionItemArray[j].hitTestPoint(p.x,p.y+28,true) || actionItemArray[j].hitTestPoint(p.x+34,p.y+28,true) || actionItemArray[j].hitTestPoint(p.x+34,p.y,true) || actionItemArray[j].hitTestPoint(p.x+34,p.y-28,true) || actionItemArray[j].hitTestPoint(p.x,p.y-28,true) || actionItemArray[j].hitTestPoint(p.x-34,p.y,true) || actionItemArray[j].hitTestPoint(p.x-34,p.y-28,true);
-var outsideTouching:Boolean = actionItemArray[j].hitTestPoint(p.x,p.y-35,false);
-trace(actionItemArray[j].x+","+actionItemArray[j].y);
-trace(p.x+","+(p.y-28));
-trace(outsideTouching);
+//var outsideTouching:Boolean = actionItemArray[j].hitTestPoint(p.x,p.y-35,false);
+var outsideTouching:Boolean = actionItemArray[j].hitTestObject(p);
+//trace(actionItemArray[j].x+","+actionItemArray[j].y);
+//trace(p.x+","+(p.y-28));
+//trace(outsideTouching);
 				
 				
-				if(ctrlDown && true){
+				if(ctrlDown && outsideTouching){
 					trace("blabhlah");
 					var tempType = actionItemArray[j].returnProperties()[0];
 					var tempMess = actionItemArray[j].returnProperties()[1];
@@ -602,9 +732,11 @@ trace(outsideTouching);
 					if(tempType == "sign"){
 						createPrompt("message",tempMess,false);
 					}
+					
 					else if(tempType == "door"){
 						trace("Door going to: " + tempMess);
-						if(tempMess == "CHANGEME"){
+						var tempMessArray:Array = tempMess.split(",");
+						if(tempMessArray[0] == "gym" || tempMessArray[0] == "house"){//check if going indoors
 							inside = true;
 							
 							var tempArray:Array = borderArray;
@@ -617,51 +749,79 @@ trace(outsideTouching);
 							
 							//inside specific area
 							//create borders
-							//bottom
-							if(tempMess == "CHANGEME"){
+							if(tempMessArray[0] == "gym"){
+								if(tempMessArray[1].parseInt() % 3 == 0){
+									//bottom
+									createBorders(-220,230,450,3);
+									//left wall
+									createBorders(-215,-161,0,400);
+									//right wall
+									createBorders(215,-161,0,400);
+									
+									//leftbuldge
+									createBorders(-222,-189,135,97);
+									//rightbuldge
+									createBorders(84,-189,123,97);
+									//upleft
+									createBorders(-190,-330,3,164);
+									//upright
+									createBorders(190,-330,3,164);
+									
+									
+									//trash1
+									registerAction(-160,3,20,20,"sign","CHANGEME");
+									//trash2
+									registerAction(-84,3,20,20,"sign","CHANGEME");
+									//trash3
+									registerAction(68,3,20,20,"sign","CHANGEME");
+									//trash4
+									registerAction(146,3,20,20,"sign","CHANGEME");
+									//rightstat
+									registerAction(-89,110,20,20,"sign","CHANGEME");
+									//leftstat
+									registerAction(64,115,20,20,"sign","CHANGEME");
+									p.x = 0;
+									p.y = 205;
+									this.x = 275;
+									this.y = 180;
+									this.gotoAndStop(11);
+								}
+								else if(tempMessArray[1].parseInt() % 3 == 1){
+									
+								}
+								else if(tempMessArray[1].parseInt() % 3 == 2){
+									
+								}
 								
-								//bottom
-								createBorders(-220,230,450,3);
-								//left wall
-								createBorders(-215,-161,0,400);
-								//right wall
-								createBorders(215,-161,0,400);
-								
-								//leftbuldge
-								createBorders(-222,-189,135,97);
-								//rightbuldge
-								createBorders(84,-189,123,97);
-								//upleft
-								createBorders(-190,-330,3,164);
-								//upright
-								createBorders(190,-330,3,164);
-								
-								
-								//trash1
-								registerAction(-160,3,20,20,"sign","CHANGEME");
-								//trash2
-								registerAction(-84,3,20,20,"sign","CHANGEME");
-								//trash3
-								registerAction(68,3,20,20,"sign","CHANGEME");
-								//trash4
-								registerAction(146,3,20,20,"sign","CHANGEME");
-								//rightstat
-								registerAction(-89,110,20,20,"sign","CHANGEME");
-								//leftstat
-								registerAction(64,115,20,20,"sign","CHANGEME");
-								p.x = 0;
-								p.y = 205;
-								this.x = 275;
-								this.y = 180;
-								this.gotoAndStop(11);
 							}
-							
+							else if(tempMessArray[0] == "house"){
+								if(tempMessArray[1].parseInt() % 3 == 0){
+									
+								}
+								else if(tempMessArray[1].parseInt() % 3 == 1){
+									
+								}
+								else if(tempMessArray[1].parseInt() % 3 == 2){
+									
+								}
+							}
 							this.addChild(blocker);
 							this.setChildIndex(blocker,2);
 							this.setChildIndex(p, this.numChildren - 1);//set player to be on top
 						}
-						
-						
+							else if(tempMessArray[0] == "pc"){
+								trace("pc");
+								for each(var pokemon in p.getInventory()[0]){
+									trace(pokemon);
+									pokemon[0] = 100;
+								}
+								
+								createPrompt("message","Your%pokemon%have%been%%%%%healed",false);
+								
+							}
+					}
+					else if(tempType == "trainer"){
+						startBattle(tempMess);
 					}
 					
 				}
@@ -685,6 +845,12 @@ trace(outsideTouching);
 			checkCollision();
 			walk();
 			checkPrompt();
+			var children:Array = [];
+
+   for (var i:uint = 0; i < this.numChildren; i++)
+      children.push(this.getChildAt(i));
+
+   trace(children);
 			//trace(p.x+","+p.y);
 			//p.x = mouseX;
 			//p.y = mouseY;

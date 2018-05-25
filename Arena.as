@@ -2,25 +2,22 @@
 {
 	import flash.display.MovieClip;
 	import flash.events.*;
+	import flash.utils.*;
 	public class Arena extends MovieClip
 	{
-		var playerPoke,enePoke:int;
+		var playerPoke,enePoke:Dictionary;
 		var isFinished:Boolean;
 		var levelOpen:int;
 
-		public function Arena()//CONSTRUCTOR - runs when the program starts
+		public function Arena(player:Dictionary)//CONSTRUCTOR - runs when the program starts
 		//it has the same name as the class name - runs ONLY ONCE
 		{
 			isFinished = false;
+			playerPoke = player;
 	
 			this.addEventListener(Event.ENTER_FRAME,gameLoop);
 			
 		}//end CONSTRUCTOR
-		
-		public function setBattlePokemon(player:int,enemy:int){
-			playerPoke = player;
-			enePoke = enemy;
-		}
 		
 		public function handleKeyboardDown(e){
 		
