@@ -23,7 +23,7 @@
 			settings['music'] = true;
 			
 			var pokemon:Dictionary = new Dictionary();
-			pokemon['blatie'] = new Array(1,"lol","lol");
+			pokemon['blatie'] = new Array("blastoise",1,"lol","lol");
 			var items:Dictionary = new Dictionary();
 			items['testtest'] = 1;
 			inv = new Array(pokemon,items);
@@ -32,19 +32,12 @@
 			
 			levelTutInit();
 			sideMenuInit();
-			arenaInit();
 			
 			stage.addEventListener(Event.ENTER_FRAME,gameLoop);
 			stage.addEventListener(KeyboardEvent.KEY_DOWN,movePlayer);
 			stage.addEventListener(KeyboardEvent.KEY_UP,unMovePlayer);
 			
 		}//end CONSTRUCTOR
-		
-		public function arenaInit(){
-			battleArena = new Arena();
-			battleArena.x = 275;
-			battleArena.y = 200;
-		}
 		
 		public function sideMenuInit(){
 			sideMenu = new SideMenu("sidebar",settings);
