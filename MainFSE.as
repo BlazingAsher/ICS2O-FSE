@@ -23,7 +23,8 @@
 			settings['music'] = true;
 			
 			var pokemon:Dictionary = new Dictionary();
-			pokemon['blatie'] = new Array("blastoise",1,"lol","lol");
+			//name, order, hp, move1, move2, move3, move4 (MOVES ARE EMPTY BEFORE FIRST BATTLE)
+			pokemon['latios'] = new Array("latios",1,69);
 			var items:Dictionary = new Dictionary();
 			items['testtest'] = 1;
 			inv = new Array(pokemon,items);
@@ -224,16 +225,6 @@
 		public function checkLevelDone(){
 			var tempArray:Array = new Array();
 			switch(level){
-				case -2:
-					if(battleArena.getIsFinished()){
-						level = battleArena.levelOnOpen();
-						trace(level);
-						trace("bnewlvl" + level);
-						trace("bnewkey" + keyboardCapture);
-						stage.removeChild(battleArena);
-						trace('bdeleted');
-					}
-					break;
 				case -1:
 					if(sideMenu.getIsFinished()){
 						level = sideMenu.levelOnOpen();

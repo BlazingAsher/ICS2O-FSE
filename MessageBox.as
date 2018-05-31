@@ -198,7 +198,7 @@
 			
 		}
 		
-		public function revealLetter(e:TimerEvent){
+		private function revealLetter(e:TimerEvent){
 			if(setup){
 				if(boxType == "battlenoti" || boxType == "battleprompt"){
 					var ct1:ColorTransform = new ColorTransform(-1,-1,-1,1,255,255,255,0); 

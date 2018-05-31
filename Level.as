@@ -521,7 +521,10 @@
 		}
 		
 		public function handleKeyboardUp(e:KeyboardEvent){
-			if(!walkingDisabled){
+			if(battling){
+				arena.handleKeyboardUp(e);
+			}
+			else if(!walkingDisabled){
 				if(e.keyCode == Keyboard.UP){
 					vy = 0;
 					doWalkingAnimation(false,2);
@@ -809,18 +812,21 @@ var outsideTouching:Boolean = actionItemArray[j].hitTestObject(p);
 							this.setChildIndex(blocker,2);
 							this.setChildIndex(p, this.numChildren - 1);//set player to be on top
 						}
-							else if(tempMessArray[0] == "pc"){
-								trace("pc");
-								for each(var pokemon in p.getInventory()[0]){
-									trace(pokemon);
-									pokemon[0] = 100;
-								}
+						else if(tempMessArray[0] == "pc"){
+							trace("pc");
+							for each(var pokemon in p.getInventory()[0]){
+								trace(pokemon);
+								pokemon[0] = 100;
+							}
 								
-								createPrompt("message","Your%pokemon%have%been%%%%%healed",false);
+							createPrompt("message","Your%pokemon%have%been%%%%%healed",false);
 								
 							}
 					}
 					else if(tempType == "trainer"){
+						p.x -= vx;
+						p.y -= vy;
+						ctrlDown = false;
 						startBattle(tempMess);
 					}
 					
@@ -845,12 +851,12 @@ var outsideTouching:Boolean = actionItemArray[j].hitTestObject(p);
 			checkCollision();
 			walk();
 			checkPrompt();
-			var children:Array = [];
+/*			var children:Array = [];
 
    for (var i:uint = 0; i < this.numChildren; i++)
       children.push(this.getChildAt(i));
 
-   trace(children);
+   trace(children);*/
 			//trace(p.x+","+p.y);
 			//p.x = mouseX;
 			//p.y = mouseY;
