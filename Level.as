@@ -461,7 +461,7 @@
 		
 		public function startBattle(gym:String){
 			if(!battling){
-				arena = new Arena(p.getInventory()[0]);
+				arena = new Arena(p.getInventory());
 				this.addChild(arena);
 				battling = true;
 			}
@@ -510,11 +510,11 @@
 					exitLevel();
 					//trace("done level1");
 			}
-			if(e.keyCode == Keyboard.INSERT){
+			/*if(e.keyCode == Keyboard.INSERT){
 				trace(p.getInventory());
 				trace(p.getInventory()[0]['blatie']);
 				trace(p.getInventory()[1]);
-			}
+			}*/
 			if(e.keyCode == Keyboard.END){
 				createPrompt("message","saflgsafglafhlf",false);
 			}

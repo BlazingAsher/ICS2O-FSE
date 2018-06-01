@@ -10,7 +10,7 @@
 	import com.greensock.easing.*;
 	public class Arena extends MovieClip
 	{
-		var playerPoke,enePoke:Dictionary;
+		var playerPoke,enePoke,playerInv:Dictionary;
 		var isFinished:Boolean;
 		var levelOpen:int;
 		var messageBox:MessageBox;
@@ -25,7 +25,7 @@
 		var movesLeft:Array;
 		var pHealth,eHealth,eDamage:int;
 
-		public function Arena(player:Dictionary)//CONSTRUCTOR - runs when the program starts
+		public function Arena(player:Array)//CONSTRUCTOR - runs when the program starts
 		//it has the same name as the class name - runs ONLY ONCE
 		{
 			
@@ -33,13 +33,14 @@
 			vy = 0;
 			
 			eHealth = 100; //can change depeneding on boss
-			eDamage = 10; //can change depending on boss
+			eDamage = 4; //can change depending on boss
 			
 			bulletArray = new Array();
 			eneBulletArray = new Array();
 			
 			isFinished = false;
-			playerPoke = player;
+			playerPoke = player[0];
+			playerInv = player[1];
 			
 			onPlayer = true;
 			switchTurns = false;
@@ -166,6 +167,16 @@
 				trace("attack 4");
 				attack(4);
 			}
+			if(e.keyCode == Keyboard.INSERT){
+				if(playerInv['potion'] != null && playerInv['potion'] > 0){
+					trace("heal pokemon");
+					playerInv['potion']--;
+					pHealth += 50;
+				}
+				else if(playerInv['potion'] == null || playerInv['potion'] < 1){
+					trace("nsf");
+				}
+			}
 		}
 		
 		public function movePlayer(){
@@ -246,8 +257,8 @@
 				addChild(circle);
 				eneBulletArray.push(circle);
 			}
-			var time:int = Math.random()*2;
-			var times:int = Math.random()*10;
+			var time:int = Math.random()*5;
+			var times:int = Math.random()*5;
 			TweenMax.delayedCall(time, eneAttack, [times]);
 		}
 		
@@ -268,16 +279,36 @@
 			for(var i:int=0;i<bulletArray.length;i++){
 				if(bulletArray[i][0].hitTestObject(pokeEne)){
 					eHealth -= bulletArray[i][1];
+					trace("phealth: " + pHealth + " eHealth: " + eHealth);
 					this.removeChild(bulletArray[i][0]);
 					bulletArray.splice(i,1);
 				}
+				else if(bulletArray[i][0].x < -450){
+					this.removeChild(bulletArray[i][0]);
+					bulletArray.splice(i,1);
+				}
+				//trace("agfsgas: " + bulletArray[i][0].x); 
 			}
 			for(var j:int=0;j<eneBulletArray.length;j++){
 				if(eneBulletArray[0].hitTestObject(pokePlayer)){
 					pHealth -= eDamage;
+					trace("phealth: " + pHealth + " eHealth: " + eHealth);
 					this.removeChild(eneBulletArray[j]);
 					eneBulletArray.splice(j,1);
 				}
+				else if(eneBulletArray[j].x > 450){
+					this.removeChild(eneBulletArray[j]);
+					eneBulletArray.splice(j,1);
+				}
+			}
+		}
+		
+		public function checkFinished(){
+			if(pHealth < 0){
+				trace("enemy won!");
+			}
+			else if(eHealth < 0){
+				trace("player won!");
 			}
 		}
 		
@@ -287,7 +318,8 @@
 			movePlayer();
 			moveEne();
 			checkCollision();
-			trace("phealth: " + pHealth + " eHealth: " + eHealth);
+			checkFinished();
+			//trace("phealth: " + pHealth + " eHealth: " + eHealth);
 		}
 		
 	}//end class

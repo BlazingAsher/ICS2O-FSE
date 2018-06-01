@@ -24,9 +24,10 @@
 			
 			var pokemon:Dictionary = new Dictionary();
 			//name, order, hp, move1, move2, move3, move4 (MOVES ARE EMPTY BEFORE FIRST BATTLE)
-			pokemon['latios'] = new Array("latios",1,69);
+			pokemon['latios'] = new Array("latios",1,100);
 			var items:Dictionary = new Dictionary();
 			items['testtest'] = 1;
+			items['potion'] = 15;
 			inv = new Array(pokemon,items);
 			
 			level = 0;
