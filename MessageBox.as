@@ -37,6 +37,7 @@
 		
 		public function setText(mess:String){
 			//store the message's letters into an array
+			//27-36 are numbers!
 			var tempArray:Array = new Array();
 			tempArray = mess.toLowerCase().split("");
 			
@@ -58,6 +59,11 @@
 				}
 				else{
 					var frameNumber = tempArray[i].charCodeAt(0)-96;//convert the letter to its position in the alphabet
+					if(!isNaN(Number(tempArray[i]))){
+						trace("is a number");
+						frameNumber = tempArray[i].charCodeAt(0)-21;
+						trace("frame is: "+tempArray[i].charCodeAt(0)); 
+					}
 					var letter:Letter = new Letter(frameNumber);
 					
 					letter.scaleX = 0.2;

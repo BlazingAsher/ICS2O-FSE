@@ -25,9 +25,15 @@
 			var pokemon:Dictionary = new Dictionary();
 			//name, order, hp, move1, move2, move3, move4 (MOVES ARE EMPTY BEFORE FIRST BATTLE)
 			pokemon['latios'] = new Array("latios",1,100);
+			pokemon['pikachu'] = new Array("pikachu",1,100);
+			pokemon['skarmory'] = new Array("skarmory",1,100);
+			pokemon['moltres'] = new Array("moltres",1,100);
+			pokemon['charizard'] = new Array("charizard",1,100);
+			pokemon['latias'] = new Array("latias",1,100);
 			var items:Dictionary = new Dictionary();
 			items['testtest'] = 1;
 			items['potion'] = 15;
+			items['money'] = 1000;
 			inv = new Array(pokemon,items);
 			
 			level = 0;
@@ -81,7 +87,6 @@
 			levelTwo.x = 275;
 			levelTwo.y = 200;
 			stage.addChild(levelTwo);
-			levelTwo.addEventListener(MouseEvent.CLICK,levelTwo.printMouse);
 		}
 		
 		public function levelThreeInit(){
@@ -104,7 +109,6 @@
 			levelFour.x = 275;
 			levelFour.y = 200;
 			stage.addChild(levelFour);
-			levelFour.addEventListener(MouseEvent.CLICK,levelFour.printMouse);
 		}
 		
 		public function levelFiveInit(){
@@ -116,6 +120,7 @@
 			levelFive.x = 275;
 			levelFive.y = 200;
 			stage.addChild(levelFive);
+			levelFive.addEventListener(MouseEvent.CLICK,levelFive.printMouse);
 		}
 		
 		public function levelSixInit(){
@@ -127,6 +132,7 @@
 			levelSix.x = 275;
 			levelSix.y = 200;
 			stage.addChild(levelSix);
+			levelSix.addEventListener(MouseEvent.CLICK,levelSix.printMouse);
 		}
 		
 		public function movePlayer(e:KeyboardEvent){
@@ -141,7 +147,7 @@
 				trace('added');
 			}
 			
-			//gyms are -3, battle is -2, menu is -1, tutorial is 0, levels are 1-6, maze is 7, outside of final battle is 8
+			//tutorial is 0, levels are 1-6, maze + final is 7
 			
 			switch(level){
 				case -2:

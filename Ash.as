@@ -22,5 +22,24 @@
 			inventory = tempInv;
 		}
 		
+		public function addInvItem(itemName:String,amount:int=1){
+			if(inventory[1][itemName] == null){
+				inventory[1][itemName] = amount;
+			}
+			else{//item already exists
+				changeItem(itemName,"inc");
+				trace("warning! wrong call to increment!");
+			}
+		}
+		
+		public function changeItem(itemName:String,action:String,amount:int=1){
+			if(action == "inc"){
+				inventory[1][itemName] += amount;
+			}
+			else{
+				inventory[1][itemName] -= amount;
+			}
+		}
+		
 	}//end class
 }//end package

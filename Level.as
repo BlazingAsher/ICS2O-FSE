@@ -208,7 +208,7 @@
 					registerAction(-92,-49,20,20,"trainer","CHANGEME");
 					
 					//HouseDoor1
-					/*
+					
 					registerAction(69,12,20,20,"door","CHANGEME");
 					//HouseDoor2
 					registerAction(69,-216,20,20,"door","CHANGEME");
@@ -217,11 +217,11 @@
 					//Gym Door
 					registerAction(417,-247,20,20,"door","CHANGEME");
 					//PCDoor
-					registerAction(101,268,20,20,"door","CHANGEME");
+					registerAction(101,268,20,20,"door","pc");
 					//ShopDoor
-					registerAction(423,45,20,20,"door","CHANGEME");
+					registerAction(423,45,20,20,"door","shop");
 					
-					*/
+					
 					//Set frame
 					this.gotoAndStop(3);
 					
@@ -279,7 +279,7 @@
 					//martdoor
 					registerAction(163,247,20,20,"door","CHANGEME");
 					//sign
-					registerAction(516,279,20,20,"sign","CHANGEME");
+					registerAction(516,279,20,20,"trainer","CHANGEME2");
 					//housedoor
 					registerAction(323,19,20,20,"door","CHANGEME");
 					//museamdoor
@@ -358,8 +358,47 @@
 				case 5:
 					//Create barriers
 					
+					//topmountains
+					createBorders(-800,-334,1079,50);
+					//pcandmountains
+					createBorders(-468,-282,766,126);
+					//treeslump
+					createBorders(-468,-155,167,231);
+					//mountainslump
+					createBorders(-84,-172,132,109);
+					//bottommountainstrip
+					createBorders(-800,277,1161,57);
+					//bottommountainlump
+					createBorders(-89,60,141,209);
+					//house1
+					createBorders(298,-56,136,93);
+					//house2and3
+					createBorders(133,106,306,91);
+					//tower
+					createBorders(457,-334,338,208);
+					//mart
+					createBorders(620,64,103,100);
+					//sidewall
+					createBorders(750,-117,50,390);
+					//bottomright
+					createBorders(471,289,329,45);
+
 					//Create ActionItem handlers
 					
+					//pcdoor
+					registerAction(228,-171,20,20,"door","CHANGEME");
+					//housedoor1
+					registerAction(256,19,20,20,"door","CHANGEME");
+					//housedoor2
+					registerAction(193,180,20,20,"door","CHANGEME");
+					//housedoor3
+					registerAction(359,182,20,20,"door","CHANGEME");
+					//routesign
+					registerAction(423,-199,20,20,"sign","CHANGEME");
+					//house1sign
+					registerAction(262,26,20,20,"sign","CHANGEME");
+					//sign
+					registerAction(518,25,20,20,"sign","CHANGEME");
 					//Set frame
 					this.gotoAndStop(6);
 					//Set player coordinates
@@ -367,6 +406,45 @@
 					break;
 				case 6:
 					//Create barriers
+					
+					//water1
+					createBorders(-800,-334,300,668);
+					//water2
+					createBorders(-485,-278,177,134);
+					//water3
+					createBorders(-288,-217,173,74);
+					//water4
+					createBorders(-81,141,95,135);
+					//water5
+					createBorders(-82,289,45,45);
+					//water6
+					createBorders(27,238,226,40);
+					//water7
+					createBorders(270,76,64,200);
+					//water8
+					createBorders(350,201,25,73);
+					//water9
+					createBorders(481,201,82,123);
+					//water10
+					createBorders(527,74,270,115);
+					//water11
+					createBorders(-493,323,400,3);
+					//trees
+					createBorders(589,-334,205,288);
+					//bush
+					createBorders(266,-56,298,3);
+					//pc
+					createBorders(110,-167,134,114);
+					//house1
+					createBorders(133,82,112,91);
+					//house2
+					createBorders(-380,-143,150,91);
+					//house3
+					createBorders(-151,-141,108,92);
+					//gym
+					createBorders(-374,74,202,117);
+					//gymfence
+					createBorders(-471,169,323,-3);
 					
 					//Create ActionItem handlers
 					
@@ -461,9 +539,13 @@
 		
 		public function startBattle(gym:String){
 			if(!battling){
-				arena = new Arena(p.getInventory());
+				arena = new Arena(p.getInventory(),gym);
+				var myPoint:Point = this.globalToLocal(new Point(275,200));
+				arena.x = myPoint.x;
+				arena.y = myPoint.y;
 				this.addChild(arena);
 				battling = true;
+				globalWalking = false;
 			}
 		}
 		
@@ -727,6 +809,7 @@ var outsideTouching:Boolean = actionItemArray[j].hitTestObject(p);
 				
 				
 				if(ctrlDown && outsideTouching){
+					ctrlDown = false;
 					trace("blabhlah");
 					var tempType = actionItemArray[j].returnProperties()[0];
 					var tempMess = actionItemArray[j].returnProperties()[1];
@@ -816,17 +899,28 @@ var outsideTouching:Boolean = actionItemArray[j].hitTestObject(p);
 							trace("pc");
 							for each(var pokemon in p.getInventory()[0]){
 								trace(pokemon);
-								pokemon[0] = 100;
+								pokemon[2] = 100;
 							}
 								
 							createPrompt("message","Your%pokemon%have%been%%%%%healed",false);
 								
+						}
+						else if(tempMessArray[0] == "shop"){
+							trace("shop");
+							if(p.getInventory()[1]['money'] > 99){
+								p.changeItem("money","dec",100);
+								p.changeItem("potion","inc");
+								createPrompt("message","Bought%one%potion%for%100%%coins%" + p.getInventory()[1]['money'] + "%coins%left",false);
 							}
+							else{
+								createPrompt("message","You%do%not%have%enough%coins",false);
+							}
+						}
 					}
 					else if(tempType == "trainer"){
 						p.x -= vx;
 						p.y -= vy;
-						ctrlDown = false;
+						trace("going in with: " + p.getInventory()[1]['money']);
 						startBattle(tempMess);
 					}
 					
@@ -845,12 +939,39 @@ var outsideTouching:Boolean = actionItemArray[j].hitTestObject(p);
 			trace("X: " + mouseX + " Y: " + mouseY);
 		}
 		
+		public function checkFinished(){
+			if(battling){
+				if(arena.getIsFinished()){
+					battling = false;
+					p.setInventory(arena.getData());
+					
+					var tempFinal:Array = arena.getFinalMessage();
+					
+					if(tempFinal[0] != "-1"){
+						createPrompt("message",tempFinal[0],false);
+					}
+					
+					if(tempFinal[1]){//player won
+						p.changeItem("money","inc",100);
+					}
+					else{//player lost
+						p.changeItem("money","dec",100);
+						trace("loser");
+					}
+					this.removeChild(arena);
+					arena = null;
+					trace("money: " + p.getInventory()[1]['money']);
+				}
+			}
+		}
+		
 		public function gameLoop(e:Event)
 		{
 			movePlayer();
 			checkCollision();
 			walk();
 			checkPrompt();
+			checkFinished();
 /*			var children:Array = [];
 
    for (var i:uint = 0; i < this.numChildren; i++)

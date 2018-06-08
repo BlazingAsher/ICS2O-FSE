@@ -45,28 +45,28 @@
 			
 			
 			//LIGHTNING Type ====== Pikachu, Zapdos
-			//Shock Wave
-			//Zap Cannon
-			//Thunderbolt
-			//Electroweb
-			//Charge Beam
+			//Shock
+			//Zap
+			//Bolt
+			//Electro
+			//Charge
 			//Discharge
-			//Ion Deluge
-			//Bolt Strike
-			//Eerie impulse
-			//Volt Switch
+			//Ion
+			//Strike
+			//Impulse
+			//Volt
 			
 			
 			//FIRE Type ============ Moltres, Charizard
-			//Inferno Overdrive
-			//Magma Storm
-			//Lava Plume
-			//Blue Flare
-			//Flamethrower
+			//Inferno
+			//Magma
+			//Lava
+			//Flare
+			//Flame
 			//Incinerate
-			//Heat Wave
+			//Heat
 			//Eruption
-			//Fire Blast
+			//Fire
 			//Overheat
 			
 			
@@ -74,115 +74,42 @@
 			//Fissure
 			//Earthquake
 			//Magnitude
-			//Precipice Blades
-			//Tectonic Rage
-			//Thousand Waves
-			//Mud Shot
-			//Land's Wrath
-			//Bone Rush
+			//Blades
+			//Rage
+			//Waves
+			//Sharpen
+			//Wrath
+			//Rush
 			//Bulldoze
 			
 			
 			//AIR Type ========= Arceus, Articuno
-			//Aerial Ace
-			//Dragon Ascent
-			//Oblivion Wing
-			//Supersonic Skystrike
+			//Aerial
+			//Ascent
+			//Oblivion
+			//Skystrike
 			//Tailwind
 			//Hurricane
 			//Aeroblast
-			//Air Slash
+			//Slash
 			//Gust
-			//Beak Blast
+			//Peck
 			
 			
 			//GHOST Type ======== Latios, Latias
-			//Black Hole Eclipse
-			//Dark Pulse
-			//Hyperspace Fury
-			//Night Slash
+			//Eclipse
+			//Pulse
+			//Fury
+			//Haunt
 			//Payback
-			//Sucker Punch
-			//Dark Void
-			//Hone Claws
-			//Knock off
+			//Punch
+			//Void
+			//Claws
+			//Spook
 			//Torment
-			
-			
-			//Darkrai
-			//
-			//
-			//
-			//
-			
-			
-			//Gyarados
-			//
-			//
-			//
-			//
-			
-			
-			//Mew
-			//
-			//
-			//
-			//
-			
-			
-			//Mewtwo
-			//
-			//
-			//
-			//
-			
-			
-			//Onix
-			//
-			//
-			//
-			//
-			
-			
-			//Rapidash
-			//
-			//
-			//
-			//
+
 			
 //-----------------------------------------------
-
-			pMove = 0;
-			movesArr = new Array();
-			
-			lightningArr = new Array('Shock Wave','Zap Cannon','Thunderbolt','Electroweb','Charge Beam','Discharge','Ion Deluge','Bolt Strike','Eerie Impulse','Volt Switch');
-			for(var i:int=0;i<4;i++){
-				pMove = Math.random()*10-i;
-				movesArr.push(lightningArr[pMove]);
-				lightningArr.splice(i,1);
-				
-				
-			}
-			
-			trace(movesArr);
-			/*fireArr = new Array();
-			for(var i:int = 0;i<fireArr.length;i++){
-				pMove = Math.random()*10;
-				//trace(pMove);
-				trace(fireArr[pMove]);
-				
-				var dup:Boolean = false;
-				
-				for(var j:int=0;j<movesArr.length;j++){
-					if(movesArr[j] == fireArr[i]){
-						dup = true;
-					}
-				}
-				
-				if(!dup){
-					movesArr.push(fireArr[pMove]);
-				}
-			}*/
 			
 			
 		}//end CONSTRUCTOR
