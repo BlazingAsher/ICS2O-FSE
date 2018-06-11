@@ -129,7 +129,7 @@
 		}
 		
 		public function setHealth(newHealth:int){
-			
+			health = newHealth;
 		}
 
 		public function getProperties(){

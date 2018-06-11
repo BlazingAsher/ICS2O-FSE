@@ -20,14 +20,14 @@
 		public function MessageBox()//CONSTRUCTOR - runs when the program starts
 		//it has the same name as the class name - runs ONLY ONCE
 		{
-			setup = false;
+			setup = false;//keeps track of whether the text is set
 			
-			boxType = "message";
+			boxType = "message"; //set the type of the box (message,yesno)
 			
-			promptActive = false;
-			textDone = false;
+			promptActive = false;//is the yesno prompt active?
+			textDone = false;//is the text done being revealed
 
-			userResponse = -1;
+			userResponse = -1;//the response of the user (0 is no, 1 is yes, -1 and -2 is null)
 			
 			myTimer = new Timer(50);
 			myTimer.addEventListener(TimerEvent.TIMER,revealLetter);
@@ -41,35 +41,39 @@
 			var tempArray:Array = new Array();
 			tempArray = mess.toLowerCase().split("");
 			
-			//array to store the letters
+			//array to store the letters (symbols)
 			letterArray = new Array();
 			
+			//set location of first letter
 			var startx:int = -495;
 			var starty:int = -40;
 			
-			for(var i:int=0;i<tempArray.length;i++){
+			for(var i:int=0;i<tempArray.length;i++){//convert the text into the symbols
 				
 				if(tempArray[i] == "%"){//% is the space symbol, since the split takes out spaces
-					startx += 38;
-					//trace(frameNumber + "," + startx);
-					if(startx == 531){
+					startx += 38;//add 38 pixels to the current location (makes a space)
+					if(startx == 531){//if at the end, go to next line
 						starty = 20;
 						startx = -495;
 					}
 				}
-				else{
+				
+				else{//not a space
 					var frameNumber = tempArray[i].charCodeAt(0)-96;//convert the letter to its position in the alphabet
-					if(!isNaN(Number(tempArray[i]))){
+					
+					if(!isNaN(Number(tempArray[i]))){//check if it is a number
 						trace("is a number");
-						frameNumber = tempArray[i].charCodeAt(0)-21;
+						frameNumber = tempArray[i].charCodeAt(0)-21;//convert the number into the proper frame
 						trace("frame is: "+tempArray[i].charCodeAt(0)); 
 					}
+					
 					var letter:Letter = new Letter(frameNumber);
 					
 					letter.scaleX = 0.2;
 					letter.scaleY = 0.2;
 					letter.x = startx;
 					letter.y = starty;
+					
 					//increase the position and check if about to go over the box
 					startx += 38;
 					trace(frameNumber + "," + startx);
@@ -77,16 +81,17 @@
 						starty = 20;
 						startx = -495;
 					}
+					
 					letter.alpha = 0;
 					letterArray.push(letter);
 					this.addChild(letter);
 				}
 			}
 			
-			setup = true;
+			setup = true;//message has been set!
 		}//setText
 		
-		public function startReveal(){
+		public function startReveal(){//start displaying the letters
 			if(setup == true){
 				myTimer.start();
 			}
@@ -95,7 +100,7 @@
 			}
 		}
 		
-		public function resetBox(){
+		public function resetBox(){//remove EVERYTHING!
 			for(var i:int=0;i<letterArray.length;i++){
 				this.removeChild(letterArray[i]);
 				letterArray.splice(i,0);
@@ -126,15 +131,14 @@
 			}
 		}
 		
-		
-		
 		public function getResponse(){
 			return userResponse;
 		}
 		
 		public function createPrompt(){
-			if(!promptActive){
+			if(!promptActive){//check there is not already a prompt
 							
+				//create yesno box
 				yesNo = new YesNo();
 				yesNo.x = 310;
 				yesNo.y = -320;
@@ -143,6 +147,7 @@
 				yesNo.gotoAndStop(1);
 				this.addChild(yesNo);
 				
+				//create the pointer
 				pointer = new YesNo();
 				pointer.x = 350;
 				pointer.y = -245;
@@ -151,12 +156,13 @@
 				pointer.gotoAndStop(2);
 				this.addChild(pointer);
 				
-				promptActive = true;
+				promptActive = true;//notify that there is a prompt now, cannot create another!
 			}
 		}
 		
 		public function destroyPrompt(){
-			if(promptActive){
+			if(promptActive){//if there is a yesno
+				//destroy EVERYTHING
 				this.removeChild(yesNo);
 				this.removeChild(pointer);
 				yesNo = null;
@@ -166,8 +172,9 @@
 		}
 		
 		public function handleKeyboardDown(e:KeyboardEvent){
-			if(promptActive){
-				if(e.keyCode == Keyboard.DOWN){
+			if(promptActive){//if there is a prompt
+				if(e.keyCode == Keyboard.DOWN){//move pointer down, or loop it back around
+					//moves the pointer
 					if(pointer.y == -183){
 						pointer.y -= 62;
 					}else{
@@ -176,7 +183,7 @@
 					
 					trace(pointer.y);
 				}
-				else if(e.keyCode == Keyboard.UP){
+				else if(e.keyCode == Keyboard.UP){//move pointer down, or loop it back around
 					if(pointer.y == -245){
 						pointer.y += 62;
 					}
@@ -184,9 +191,6 @@
 						pointer.y -= 62;
 					}
 				}
-			}
-			else if(boxType == "battleprompt"){
-				
 			}
 			
 			if(e.keyCode == Keyboard.ENTER && textDone){
@@ -201,20 +205,20 @@
 		}
 		
 		public function handleKeyboardUp(e:KeyboardEvent){
-			
+			//empty on purpose!
 		}
 		
-		private function revealLetter(e:TimerEvent){
-			if(setup){
-				if(boxType == "battlenoti" || boxType == "battleprompt"){
+		private function revealLetter(e:TimerEvent){//start revealing the letters (alpha to 1)
+			if(setup){//make sure a message is set!
+				if(boxType == "battlenoti" || boxType == "battleprompt"){//if is type with blue background, make text white
 					var ct1:ColorTransform = new ColorTransform(-1,-1,-1,1,255,255,255,0); 
 					letterArray[currIndex].transform.colorTransform = ct1;
 				}
 				letterArray[currIndex].alpha = 1;
 				currIndex++;
-				if(currIndex == letterArray.length){
+				if(currIndex == letterArray.length){//at the end, stop
 					myTimer.stop();
-					textDone = true;
+					textDone = true;//finished reveal
 					//reset();
 				}
 			}

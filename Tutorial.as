@@ -45,25 +45,28 @@
 			
 		}//end CONSTRUCTOR
 		
-		public function checkButtonHover(){
+		public function checkButtonHover(){//check if the button is hovering over the start button
+			//set detector x to mousex
 			detector.x = mouseX;
 			detector.y = mouseY;
-			if(detector.hitTestObject(startButton)){
+			if(detector.hitTestObject(startButton)){//if it hits, set larger scale
 				startButton.scaleX = 1.25;
 				startButton.scaleY = 1.25;
 				mouseOverButton = true;
 			}
-			else{
+			else{//if not, set the scale to regular
 				startButton.scaleX = 1;
 				startButton.scaleY = 1;
 				mouseOverButton = false;
 			}
 		}
 		
-		public function startGame(e:MouseEvent){
-			if(mouseOverButton){
+		public function startGame(e:MouseEvent){//starts the game
+			if(mouseOverButton){//if the mouse is currently over the button
 				prompting = true;
+				//fade in/out effect
 				this.addChild(blocker);
+				//slowly fade blocker (black screen) in
 				TweenMax.from(blocker,0.5,{alpha:0});
 				TweenMax.delayedCall(0.5, fadeIn, []);
 			}
@@ -71,12 +74,16 @@
 		}
 		
 		public function fadeIn(){
+			//slowly fade blocker (black screen) out
+			//fade oak in
 			TweenMax.to(blocker,0.5,{alpha:0});
 			TweenMax.delayedCall(0.5, firstMessage, []);
 			this.removeChild(detector);
 			this.removeChild(startButton);
 			this.removeChild(splashScreen);
 		}
+		
+		//starting the string of messages
 		
 		public function firstMessage(){
 			messageBox = new MessageBox();
@@ -86,7 +93,7 @@
 			messageBox.scaleY = 0.467;
 			messageBox.setText("hello");
 			messageBox.startReveal();
-			TweenMax.delayedCall(2, secondMessage, []);
+			TweenMax.delayedCall(2, secondMessage, []);//delay for the next message to pop up
 			this.addChild(messageBox);
 		}
 		
@@ -238,15 +245,18 @@
 			this.addChild(blocker);
 			TweenMax.from(blocker,1.5,{alpha:0});
 		}
-		public function setFinished(){
+		
+		public function setFinished(){//sets that the tutorial is finished
 			isFinished = true;
 		}
+		
 		public function getIsFinished(){
 			return isFinished;
 		}
+		
 		public function gameLoop(e:Event)
 		{
-			if(!prompting){
+			if(!prompting){//if a message box is not active (on title screen), check if the mouse is hovering over the button
 				checkButtonHover();
 			}
 		}

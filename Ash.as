@@ -11,18 +11,21 @@
 		{
 			
 			inventory = new Array();
+			//inventory is an array of two dictionaries
+			//0 is dictionary of pokemon
+			//1 is dictionary of itmems
 			
 		}//end CONSTRUCTOR
 		
-		public function getInventory(){
+		public function getInventory(){//returns contents of the player inventory as an array
 			return inventory;
 		}
 		
-		public function setInventory(tempInv:Array){
+		public function setInventory(tempInv:Array){//using input, sets the player inventory
 			inventory = tempInv;
 		}
-		
-		public function addInvItem(itemName:String,amount:int=1){
+
+		public function addInvItem(itemName:String,amount:int=1){//adds an item to the player's inventory
 			if(inventory[1][itemName] == null){
 				inventory[1][itemName] = amount;
 			}
@@ -32,11 +35,11 @@
 			}
 		}
 		
-		public function changeItem(itemName:String,action:String,amount:int=1){
+		public function changeItem(itemName:String,action:String,amount:int=1){//modifies the amount of an item in an inventory
 			if(action == "inc"){
-				inventory[1][itemName] += amount;
+				inventory[1][itemName] += amount;//increase amount
 			}
-			else{
+			else{//decrease amount
 				inventory[1][itemName] -= amount;
 			}
 		}
