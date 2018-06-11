@@ -9,6 +9,7 @@
 	import flash.text.*;
 	import com.greensock.*;
 	import com.greensock.easing.*;
+	
 	public class Arena extends MovieClip
 	{
 		var playerPoke,enePoke,playerInv:Dictionary;
@@ -27,6 +28,7 @@
 		var txtChoosePokemonFormat:TextFormat;
 		var doneSetup:Boolean;
 		var currIndex:int;
+		var txtArray:Array;
 
 		public function Arena(player:Array,gym:String)//CONSTRUCTOR - runs when the program starts
 		//it has the same name as the class name - runs ONLY ONCE
@@ -173,7 +175,63 @@
 			}
 			trace("phealth: " + pHealth);
 			
-			//var backrect:Shape = new Rectangle(
+			//draw the info card
+			var backRect:Shape = new Shape();
+			backRect.graphics.beginFill(0x000000); // choosing the colour for the fill, here it is red
+			backRect.graphics.drawRect(0, 0, 115,80); // (x spacing, y spacing, width, height)
+			backRect.graphics.endFill(); // not always needed but I like to put it in to end the fill
+			backRect.x = 160;
+			backRect.y = -240;
+			this.addChild(backRect);
+			
+			txtArray = new Array();			
+			
+			for(var i:int=0;i<4;i++){
+				var txtMoveName,txtMoveCount:TextField;
+				var txtMoveNameFormat:TextFormat;
+				
+				txtMoveNameFormat = new TextFormat();
+				txtMoveNameFormat.size = 12;
+				txtMoveNameFormat.font = "Tekton Pro Ext";
+				txtMoveNameFormat.color = 0xFFFFFF;
+				
+				txtMoveName = new TextField();
+				txtMoveName.defaultTextFormat = txtMoveNameFormat;
+				txtMoveName.x = 165;
+				txtMoveName.y = -235 + 14*i;
+				txtMoveName.text = playerPoke[currPoke][i+3];
+				if(i == 0){
+					txtMoveName.text = txtMoveName.text + " (Q)"
+				}
+				else if(i == 1){
+					txtMoveName.text = txtMoveName.text + " (W)"
+				}
+				else if(i == 2){
+					txtMoveName.text = txtMoveName.text + " (E)"
+				}
+				else if(i == 3){
+					txtMoveName.text = txtMoveName.text + " (R)"
+				}
+				txtMoveName.autoSize = TextFieldAutoSize.LEFT;
+				this.addChild(txtMoveName);
+				txtArray.push(txtMoveName);
+				
+				txtMoveCount = new TextField();
+				txtMoveCount.defaultTextFormat = txtMoveNameFormat;
+				txtMoveCount.x = 250;
+				txtMoveCount.y = -235 + 14*i;
+				if(movesLeft[i] != Number.POSITIVE_INFINITY){
+					txtMoveCount.text = movesLeft[i].toString();
+				}
+				else{
+					txtMoveCount.text = "INF";
+				}
+				txtMoveCount.autoSize = TextFieldAutoSize.LEFT;
+				this.addChild(txtMoveCount);
+				txtArray.push(txtMoveCount);
+				
+			}
+			trace(txtArray);
 		}
 		
 		public function addEne(){
@@ -238,9 +296,9 @@
 			}
 			
 			for(var i:int=0;i<4;i++){
-				pMove = Math.random()*10-i;
+				pMove = Math.random() * availableMoves.length;
 				tempMoves.push(availableMoves[pMove]);
-				availableMoves.splice(i,0);
+				availableMoves.splice(pMove,1);
 				trace(i + " left: " + availableMoves);
 			}
 			
@@ -466,7 +524,7 @@
 		public function eneAttack(times:int){
 			for(var i:int=0;i<times;i++){
 				var circle:Shape = new Shape();
-				circle.graphics.beginFill(0x990000, 1);
+				circle.graphics.beginFill(0x000000, 1);
 				circle.graphics.drawCircle(pokeEne.x+5,pokeEne.y,3);
 				circle.graphics.endFill();
 				
@@ -579,6 +637,19 @@
 			eHealthBar.x = -275 - (100 - eHealth);
 		}
 		
+		public function updateBoard(){
+			if(doneSetup){
+				try{
+					txtArray[1].text = movesLeft[0].toString();
+					txtArray[3].text = movesLeft[1].toString();
+					txtArray[5].text = movesLeft[2].toString();
+				}
+				catch(error:Error){
+					//text is not setup ye
+				}
+			}
+		}
+		
 		public function gameLoop(e:Event)
 		{
 			moveBullets();
@@ -587,6 +658,8 @@
 			checkCollision();
 			checkFinished();
 			updateHealth();
+			updateBoard();
+			//trace(mouseX+","+mouseY);
 			//trace("phealth: " + pHealth + " eHealth: " + eHealth);
 		}
 		

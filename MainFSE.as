@@ -45,17 +45,10 @@
 			level = 0;
 			
 			levelTutInit();
-			sideMenuInit();
 			
 			stage.addEventListener(Event.ENTER_FRAME,gameLoop);
 			stage.addEventListener(KeyboardEvent.KEY_DOWN,movePlayer);
 			stage.addEventListener(KeyboardEvent.KEY_UP,unMovePlayer);
-		}
-		
-		public function sideMenuInit(){
-			sideMenu = new SideMenu("sidebar",settings);
-			sideMenu.x = 575;
-			sideMenu.y = 200;
 		}
 		
 		public function levelTutInit(){
@@ -157,7 +150,7 @@
 		
 		public function movePlayer(e:KeyboardEvent){
 			
-			if((e.keyCode == Keyboard.TAB || e.keyCode == Keyboard.ESCAPE) && level != -1 && level != 0){
+/*			if((e.keyCode == Keyboard.TAB || e.keyCode == Keyboard.ESCAPE) && level != -1 && level != 0){
 				trace("capture")
 				trace("level is: " + level);
 				sideMenu.setLevelOnOpen(level);
@@ -166,16 +159,10 @@
 				stage.addChild(sideMenu);
 				trace('added');
 			}
-			
+			*/
 			//tutorial is 0, levels are 1-6, maze + final is 7
 			
 			switch(level){
-				case -2:
-					battleArena.handleKeyboardDown(e);
-					break;
-				case -1:
-					sideMenu.handleKeyboardDown(e);
-					break;
 				case 0:
 					levelTut.handleKeyboardDown(e);
 					break;
@@ -211,12 +198,6 @@
 		
 		public function unMovePlayer(e:KeyboardEvent){
 			switch(level){
-				case -2:
-					battleArena.handleKeyboardUp(e);
-					break;
-				case -1:
-					sideMenu.handleKeyboardUp(e);
-					break;
 				case 0:
 					levelTut.handleKeyboardUp(e);
 					break;
@@ -252,17 +233,6 @@
 		public function checkLevelDone(){
 			var tempArray:Array = new Array();
 			switch(level){
-				case -1:
-					if(sideMenu.getIsFinished()){
-						level = sideMenu.levelOnOpen();
-						trace(level);
-						trace("newlvl" + level);
-						trace("newkey" + keyboardCapture);
-						settings = sideMenu.getSettings();
-						stage.removeChild(sideMenu);
-						trace('deleted');
-					}
-					break;
 				case 0:
 					if(levelTut.getIsFinished()){
 						stage.removeChild(levelTut);

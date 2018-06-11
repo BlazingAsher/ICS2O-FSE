@@ -4,12 +4,16 @@
 	import flash.events.*;
 	import flash.utils.*;
 	import flash.ui.Keyboard;
-	import flash.geom.Point;
+	import flash.display.*;
+	import flash.geom.*;
 	import flash.media.Sound;
 	import flash.media.SoundChannel;
 	import flash.media.SoundTransform;
 	import com.greensock.*;
 	import com.greensock.easing.*;
+	import flash.text.*;
+	import com.adobe.tvsdk.mediacore.TextFormat;
+
 	public class Level extends MovieClip
 	{
 		var levelTimer:Timer;
@@ -29,7 +33,7 @@
 		var prompting:Boolean;
 		var userResponse:int;
 		var inside:Boolean;
-		var blocker:Blocker = new Blocker();
+		var blocker:Blocker;
 		var battling:Boolean;
 		var bgMusic:BgMusic;
 		var bgMusicChannel:SoundChannel;
@@ -41,6 +45,12 @@
 		var tut:Tutorial;
 		var darknessEffect:DarknessEffect;
 		var levelNumber:int;
+		var sideMenu:SideMenu;
+		var menuArray:Array;
+		var inMenu:Boolean;
+		var txtPotionNumber:TextField;
+		var txtMoneyNumber:TextField;
+		var txtMenuFormat:TextFormat;
 		
 		//w = 1600
 		//h = 668
@@ -51,6 +61,7 @@
 			prompting = false;
 			inside = false;
 			inTutorial = false;
+			inMenu = false;
 			battling = false;
 			bgMusic = new BgMusic();
 			
@@ -59,10 +70,99 @@
 			p = new Ash();
 			p.setInventory(dataArray[1]);
 			
+			fadeIn();
+			
 			createAssets(levelNumber);
 			this.addEventListener(Event.ENTER_FRAME,gameLoop);
 			
 		}//end CONSTRUCTOR
+		
+		public function fadeIn(){
+			blocker = new Blocker();
+			this.addChild(blocker);
+			blocker.alpha = 0;
+			TweenMax.from(blocker,0.5,{alpha:1});
+		}
+		
+		public function fadeOut(){
+			blocker = new Blocker();
+			this.addChild(blocker);
+			blocker.alpha = 0;
+			TweenMax.to(blocker,0.5,{alpha:1});
+		}
+		
+		public function manageMenu(state:String){
+			if(state == "open" && !inMenu){
+				inMenu = true;
+				menuArray = new Array();
+				sideMenu = new SideMenu();
+				var myPoint:Point = this.globalToLocal(new Point(275,200));
+				sideMenu.x = myPoint.x;
+				sideMenu.y = myPoint.y;
+				var i:int = 0;
+				for each(var poke in p.getInventory()[0]){					
+					var pokeImage:Pokemon = new Pokemon(poke[0]);//draw the choose pokemon pokemon
+					pokeImage.x = -131 + 135*i;
+					pokeImage.y = -60;
+					if(i>2){
+						pokeImage.x = -131 + 135*(i-3);
+						pokeImage.y = 45;
+					}
+					if(poke[2]<1){
+						pokeImage.transform.colorTransform = new ColorTransform(1.25,0,0,1,0,0,0,0);
+					}
+					else if(poke[2]<51){
+						pokeImage.transform.colorTransform = new ColorTransform(1.25,1.25,0,1,0,0,0,0);
+					}
+					else{
+						pokeImage.transform.colorTransform = new ColorTransform(0,1.25,0,1,0,0,0,0);
+					}
+					menuArray.push(pokeImage);
+					sideMenu.addChild(pokeImage);
+					i++;
+				}
+				
+				txtMenuFormat = new TextFormat();
+				txtPotionNumber = new TextField();
+				txtMoneyNumber = new TextField();
+				
+				txtMenuFormat.color = 0xFFFFFF;
+				txtMenuFormat.size = 20;
+				txtMenuFormat.font = "Tekton Pro Ext";
+				
+				txtPotionNumber.defaultTextFormat = txtMenuFormat;
+				txtMoneyNumber.defaultTextFormat = txtMenuFormat;
+				
+				txtPotionNumber.text = p.getInventory()[1]['potion'].toString();
+				txtPotionNumber.x = -166;
+				txtPotionNumber.y = 131;
+				txtPotionNumber.autoSize = TextFieldAutoSize.LEFT;
+				menuArray.push(txtPotionNumber);
+				sideMenu.addChild(txtPotionNumber);
+				
+				txtMoneyNumber.text = p.getInventory()[1]['money'].toString();
+				txtMoneyNumber.x = -178;
+				txtMoneyNumber.y = 158;
+				txtMoneyNumber.autoSize = TextFieldAutoSize.LEFT;
+				menuArray.push(txtMoneyNumber);
+				sideMenu.addChild(txtMoneyNumber);
+				
+				trace("saghsag: " + sideMenu.contains(txtMoneyNumber));
+				
+				this.addChild(sideMenu);
+				
+			}//end open if
+			else if(state == "close" && inMenu){
+				for(var j:int=0;j<menuArray.length;j++){
+					sideMenu.removeChild(menuArray[j]);
+					menuArray[j] = undefined;
+				}
+				menuArray = undefined;
+				this.removeChild(sideMenu);
+				sideMenu = undefined;
+				inMenu = false;
+			}
+		}
 		
 		public function getIsFinished(){
 			return isFinished;
@@ -78,6 +178,7 @@
 		public function updateSettings(tempSettings:Dictionary){
 			settings = tempSettings;
 			if(settings['music']){
+				trace("player music");
 				bgMusicChannel = bgMusic.play(0,int.MAX_VALUE);
 				bgSoundTransform = bgMusicChannel.soundTransform;
 				bgSoundTransform.volume = 0.75;
@@ -96,12 +197,18 @@
 		
 		public function exitLevel(){
 			try{
+				trace('asfgafsg');
 				bgMusicChannel.stop();
 				this.removeEventListener(Event.ENTER_FRAME,gameLoop);
+				fadeOut();
+				TweenMax.delayedCall(0.5,setFinished,[]);
 			}
 			catch(error:Error){
 				trace("error");
 			}
+		}
+		
+		public function setFinished(){
 			isFinished = true;
 		}
 		
@@ -705,6 +812,9 @@
 						vy+=10;
 					}
 				}
+				if(e.keyCode == Keyboard.TAB){
+					manageMenu("open");
+				}
 			}
 			if(e.keyCode == Keyboard.SHIFT){
 					exitLevel();
@@ -753,6 +863,9 @@
 					else if(vy>0){
 						vy-=10;
 					}
+				}
+				if(e.keyCode == Keyboard.TAB){
+					manageMenu("close");
 				}
 			}
 			
@@ -1150,6 +1263,7 @@
 									
 								}
 							}
+							blocker = new Blocker();
 							this.addChild(blocker);
 							this.setChildIndex(blocker,2);
 							this.setChildIndex(p, this.numChildren - 1);//set player to be on top
@@ -1248,8 +1362,11 @@
 					
 					var tempFinal:Array = arena.getFinalMessage();
 					
-					if(tempFinal[0] != "-1"){
+					if(tempFinal[0] != "-1" && tempFinal[1]){
 						createPrompt("message",tempFinal[0],false);
+					}
+					else if(tempFinal[0] != "-1"){
+						createPrompt("message","You%have%been%defeated",false);
 					}
 					
 					if(tempFinal[1]){//player won
@@ -1261,7 +1378,7 @@
 					}
 					
 					//if need to switch levels
-					if(tempFinal[2]){
+					if(tempFinal[2] && tempFinal[1]){
 						TweenMax.delayedCall(3,exitLevel,[]);
 					}
 					this.removeChild(arena);
@@ -1273,7 +1390,9 @@
 		
 		public function checkTutFinished(){
 			if(inTutorial){
-				isFinished = tut.getIsFinished();
+				if(tut.getIsFinished()){
+					exitLevel();
+				}
 			}
 		}		
 		
@@ -1285,6 +1404,7 @@
 			checkPrompt();
 			checkFinished();
 			checkTutFinished();
+			
 		}
 	}//end class
 }//end package
