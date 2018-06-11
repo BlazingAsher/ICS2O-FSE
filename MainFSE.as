@@ -6,17 +6,23 @@
 	import flash.ui.Keyboard;
 	public class MainFSE extends MovieClip
 	{
-		var levelTut,levelOne,levelTwo,levelThree,levelFour,levelFive,levelSix:Level;
+		var levelTut,levelOne,levelTwo,levelThree,levelFour,levelFive,levelSix,levelSeven:Level;
 		var battleArena:Arena;
 		var sideMenu:SideMenu;
 		var keyboardCapture:String;
 		var level:int;
 		var settings:Dictionary;
 		var inv:Array;
+		var finale:EndScene;
 		
 		public function MainFSE()//CONSTRUCTOR - runs when the program starts
 		//it has the same name as the class name - runs ONLY ONCE
 		{
+			initAll();
+			
+		}//end CONSTRUCTOR
+		
+		public function initAll(){
 			//menu has level number -1
 			
 			settings = new Dictionary();
@@ -24,9 +30,9 @@
 			
 			var pokemon:Dictionary = new Dictionary();
 			//name, order, hp, move1, move2, move3, move4 (MOVES ARE EMPTY BEFORE FIRST BATTLE)
-			pokemon['latios'] = new Array("latios",1,100);
+			pokemon['latios'] = new Array("latios",1,0);
 			pokemon['pikachu'] = new Array("pikachu",1,100);
-			pokemon['skarmory'] = new Array("skarmory",1,100);
+			pokemon['skarmory'] = new Array("skarmory",1,48);
 			pokemon['moltres'] = new Array("moltres",1,100);
 			pokemon['charizard'] = new Array("charizard",1,100);
 			pokemon['latias'] = new Array("latias",1,100);
@@ -44,8 +50,7 @@
 			stage.addEventListener(Event.ENTER_FRAME,gameLoop);
 			stage.addEventListener(KeyboardEvent.KEY_DOWN,movePlayer);
 			stage.addEventListener(KeyboardEvent.KEY_UP,unMovePlayer);
-			
-		}//end CONSTRUCTOR
+		}
 		
 		public function sideMenuInit(){
 			sideMenu = new SideMenu("sidebar",settings);
@@ -120,7 +125,6 @@
 			levelFive.x = 275;
 			levelFive.y = 200;
 			stage.addChild(levelFive);
-			levelFive.addEventListener(MouseEvent.CLICK,levelFive.printMouse);
 		}
 		
 		public function levelSixInit(){
@@ -132,7 +136,23 @@
 			levelSix.x = 275;
 			levelSix.y = 200;
 			stage.addChild(levelSix);
-			levelSix.addEventListener(MouseEvent.CLICK,levelSix.printMouse);
+		}
+		public function levelSevenInit(){
+			var dataArray = new Array();
+			dataArray[0] = settings;
+			dataArray[1] = inv;
+			
+			levelSeven = new Level(7,dataArray);
+			levelSeven.x = -250;
+			levelSeven.y = 140;
+			stage.addChild(levelSeven);
+		}
+		
+		public function finaleInit(){
+			finale = new EndScene();
+			finale.x = 257;
+			finale.y = 200;
+			stage.addChild(finale);
 		}
 		
 		public function movePlayer(e:KeyboardEvent){
@@ -178,10 +198,10 @@
 					levelSix.handleKeyboardDown(e);
 					break;
 				case 7:
-				
+					levelSeven.handleKeyboardDown(e);
 					break;
 				case 8:
-				
+					finale.handleKeyboardDown(e);
 					break;
 				default:
 					trace("other level");
@@ -219,10 +239,10 @@
 					levelSix.handleKeyboardUp(e);
 					break;
 				case 7:
-				
+					levelSeven.handleKeyboardUp(e);
 					break;
 				case 8:
-				
+					finale.handleKeyboardUp(e);
 					break;
 				default:
 					trace("other level");
@@ -325,16 +345,43 @@
 						inv = tempArray[1];
 						
 						level = 7;
-						levelOne = null;
-						//levelTwoInit();
+						levelSix = null;
+						levelSevenInit();
 					}
 					break;
 					
 				case 7:
-				
+					if(levelSeven.getIsFinished()){
+						trace("received level1 done");
+						stage.removeChild(levelSeven);
+						
+						tempArray = levelSeven.transferData();
+						inv = tempArray[1];
+						
+						level = 8;
+						levelSeven = null;
+						finaleInit();
+					}
 					break;
 				case 8:
-				
+					if(finale.getIsFinished()){
+						trace("finale");
+						stage.removeChild(finale);
+						
+						//destroy everything
+
+						finale = undefined;
+						battleArena = undefined;
+						keyboardCapture = undefined;
+						level = undefined;
+						settings = undefined;
+						inv = undefined;
+						
+						//keep going
+						initAll();
+						
+						//exit
+					}
 					break;
 			}
 		}

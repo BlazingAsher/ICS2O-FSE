@@ -25,12 +25,18 @@
 		var gymName:String;
 		var txtChoosePokemon:TextField;
 		var txtChoosePokemonFormat:TextFormat;
+		var doneSetup:Boolean;
+		var currIndex:int;
 
 		public function Arena(player:Array,gym:String)//CONSTRUCTOR - runs when the program starts
 		//it has the same name as the class name - runs ONLY ONCE
 		{
 			
 			gymName = gym;
+			
+			doneSetup = false;
+			
+			currIndex = 0;
 			
 			vx = 0;
 			vy = 0;
@@ -75,13 +81,29 @@
 			
 			var i:int = 0;
 			for each(var poke in playerPoke){
-				var pokeImage:Pokemon = new Pokemon(poke[0]);
+				poke[1] = -10; //set all pokemon to no priority, it will be set later
+				
+				var pokeImage:Pokemon = new Pokemon(poke[0]);//draw the choose pokemon pokemon
 				pokeImage.x = -131 + 135*i;
 				pokeImage.y = -40;
 				if(i>2){
 					pokeImage.x = -131 + 135*(i-3);
 					pokeImage.y = 65;
 				}
+				if(i!=0){//the first pokemon will be selected by default, so make it move!
+					pokeImage.stopMoving();
+				}
+				
+				if(poke[2]<1){
+					pokeImage.transform.colorTransform = new ColorTransform(1.25,0,0,1,0,0,0,0);
+				}
+				else if(poke[2]<51){
+					pokeImage.transform.colorTransform = new ColorTransform(1.25,1.25,0,1,0,0,0,0);
+				}
+				else{
+					pokeImage.transform.colorTransform = new ColorTransform(0,1.25,0,1,0,0,0,0);
+				}
+				pokeImage.setHealth(poke[2]);
 				assetArray.push(pokeImage);
 				this.addChild(pokeImage);
 				i++;
@@ -90,7 +112,7 @@
 			trace("w: " + txtChoosePokemon.width + "l: " + txtChoosePokemon.length);
 		}//end CONSTRUCTOR
 		
-		public function afterChosen(player:Array,gym:String){
+		public function afterChosen(){
 			messageBox = new MessageBox();
 			messageBox.x = 0;
 			messageBox.y = 153;
@@ -115,6 +137,7 @@
 			addPlayer();
 			addEne();
 			createAssets();
+			doneSetup = true;
 			this.addEventListener(Event.ENTER_FRAME,gameLoop);
 			TweenMax.delayedCall(1, eneAttack, [1]);
 		}
@@ -149,19 +172,35 @@
 				trace(playerPoke[currPoke]);
 			}
 			trace("phealth: " + pHealth);
+			
+			//var backrect:Shape = new Rectangle(
 		}
 		
 		public function addEne(){
 			var firstPoke:String;
-			for each(var poke in playerPoke){
-				trace(poke);
-				if(poke[1] == 1)
-				{
-					trace("triggered");
-					firstPoke = poke[0];
+			if(gymName.indexOf("%") >=0){//this means it is a trainer, not a wild pokemon
+				if(gymName == "Gov%Zari"){
+					firstPoke = "darkrai";
+				}
+				else if(gymName == "Gov%Asan"){
+					firstPoke = "gyarados";
+				}
+				else if(gymName == "Gov%Nardo"){
+					firstPoke = "mew";
+				}
+				else if(gymName == "Gov%Noen"){
+					firstPoke = "onix";
+				}
+				else if(gymName == "Gov%Dao"){
+					firstPoke = "rapidash";
+				}
+				else if(gymName == "King%Wici"){
+					firstPoke = "mewtwo`";
 				}
 			}
-			
+			else{
+				firstPoke = gymName;
+			}
 			pokeEne = new Pokemon(firstPoke);
 			pokeEne.scaleX = -0.9;
 			pokeEne.x = -193;
@@ -230,67 +269,125 @@
 		}
 		
 		public function handleKeyboardDown(e){
-			if(e.keyCode == Keyboard.DOWN){
-				vy = 2;
-			}
-			else if(e.keyCode == Keyboard.UP){
-				vy = -2;
-			}
-			else if(e.keyCode == Keyboard.LEFT){
-				vx = -2;
-			}
-			else if(e.keyCode == Keyboard.RIGHT){
-				vx = 2;
-			}
+			if(doneSetup){
+				if(e.keyCode == Keyboard.DOWN){
+					vy = 2;
+				}
+				else if(e.keyCode == Keyboard.UP){
+					vy = -2;
+				}
+				else if(e.keyCode == Keyboard.LEFT){
+					vx = -2;
+				}
+				else if(e.keyCode == Keyboard.RIGHT){
+					vx = 2;
+				}
+				if(e.keyCode == 81){
+					//Q
+					trace("attack 1");
+					attack(0);
+				}
+				if(e.keyCode == 87){
+					//W
+					trace("attack 2");
+					attack(1);
+				}
+				if(e.keyCode == 69){
+					//E
+					trace("attack 3");
+					attack(2);
+				}
+				if(e.keyCode == 82){
+					//R
+					trace("attack 4");
+					attack(3);
+				}
+				if(e.keyCode == Keyboard.INSERT){
+					if(playerInv['potion'] != null && playerInv['potion'] > 0){
+						trace("heal pokemon");
+						playerInv['potion']--;
+						pHealth += 50;
+						if(pHealth > 100){
+							pHealth = 100;
+						}
+					}
+					else if(playerInv['potion'] == null || playerInv['potion'] < 1){
+						trace("nsf");
+					}
+				}
+			}//end donesetup if
+			else{
+				try{
+					if(e.keyCode == Keyboard.DOWN){
+						assetArray[currIndex].stopMoving();
+						currIndex+=3;
+						if(currIndex>5){
+							currIndex-=6;
+						}
+						assetArray[currIndex].startMoving();
+					}
+					else if(e.keyCode == Keyboard.UP){
+						assetArray[currIndex].stopMoving();
+						currIndex-=3;
+						if(currIndex<0){
+							currIndex+=6;
+						}
+						assetArray[currIndex].startMoving();
+					}
+					else if(e.keyCode == Keyboard.LEFT){
+						assetArray[currIndex].stopMoving();
+						currIndex--;
+						if(currIndex <0){
+							currIndex = 5;
+						}
+						assetArray[currIndex].startMoving();
+					}
+					else if(e.keyCode == Keyboard.RIGHT){
+						assetArray[currIndex].stopMoving();
+						currIndex++;
+						trace("currIndex b: " +currIndex);
+						if(currIndex >5){
+							trace("ram!");
+							currIndex = 0;
+						}
+						trace("currIndex a: " +currIndex);
+						assetArray[currIndex].startMoving();
+					}
+					else if(e.keyCode == Keyboard.ENTER){
+						trace("player has chosen " + assetArray[currIndex].getProperties()[0]);
+						playerPoke[assetArray[currIndex].getProperties()[0]][1] = 1;
+						for(var i:int=0;i<assetArray.length;i++){
+							this.removeChild(assetArray[i]);
+						}
+						this.removeChild(blocker);
+						this.removeChild(txtChoosePokemon);
+						afterChosen();
+					}
+				}
+				catch(error:Error){
+					trace("hmm");
+				}
+				
+			}//end donesetup else
+		
 		}
 		
 		public function handleKeyboardUp(e){
-			trace("safgf");
-			if(e.keyCode == Keyboard.DOWN){
-				vy = 0;
-			}
-			else if(e.keyCode == Keyboard.UP){
-				vy = 0;
-			}
-			else if(e.keyCode == Keyboard.LEFT){
-				vx = 0;
-			}
-			else if(e.keyCode == Keyboard.RIGHT){
-				vx = 0;
-			}
-			if(e.keyCode == 81){
-				//Q
-				trace("attack 1");
-				attack(0);
-			}
-			if(e.keyCode == 87){
-				//W
-				trace("attack 2");
-				attack(1);
-			}
-			if(e.keyCode == 69){
-				//E
-				trace("attack 3");
-				attack(2);
-			}
-			if(e.keyCode == 82){
-				//R
-				trace("attack 4");
-				attack(3);
-			}
-			if(e.keyCode == Keyboard.INSERT){
-				if(playerInv['potion'] != null && playerInv['potion'] > 0){
-					trace("heal pokemon");
-					playerInv['potion']--;
-					pHealth += 50;
-					if(pHealth > 100){
-						pHealth = 100;
-					}
+			if(doneSetup){
+				if(e.keyCode == Keyboard.DOWN){
+					vy = 0;
 				}
-				else if(playerInv['potion'] == null || playerInv['potion'] < 1){
-					trace("nsf");
+				else if(e.keyCode == Keyboard.UP){
+					vy = 0;
 				}
-			}
+				else if(e.keyCode == Keyboard.LEFT){
+					vx = 0;
+				}
+				else if(e.keyCode == Keyboard.RIGHT){
+					vx = 0;
+				}
+				
+			}//end donesetup if
 		}
 		
 		public function movePlayer(){
@@ -447,7 +544,27 @@
 		
 		public function getFinalMessage(){
 			var dataPack:Array = new Array();
-			dataPack[0] = "message";
+			if(gymName.indexOf("%") >=0){//this means it is a trainer, not a wild pokemon
+				if(gymName == "Gov%Zari"){
+					dataPack[0] = "You%were%lucky";
+				}
+				else if(gymName == "Gov%Asan"){
+					dataPack[0] = "You%will%not%defeat%the%rest";
+				}
+				else if(gymName == "Gov%Nardo"){
+					dataPack[0] = "Stop%using%your%dark%arts%of%science";
+				}
+				else if(gymName == "Gov%Noen"){
+					dataPack[0] = "You%must%stop%this";
+				}
+				else if(gymName == "Gov%Dao"){
+					dataPack[0] = "I%must%go%warn%King%Wici";
+				}
+				else if(gymName == "King%Wici"){
+					dataPack[0] = "Math%will%always%reign%supreme";
+				}
+				dataPack[2] = true;
+			}
 			if(eHealth < 0){
 				dataPack[1] = true; //player won
 			}

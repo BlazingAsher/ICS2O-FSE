@@ -7,13 +7,20 @@
 		var pokeType:String;
 		var lightningArr,fireArr,metalArr,airArr,ghostArr,bossArr,movesArr:Array;
 		var pMove:int;
+		var movingEnabled:Boolean;
+		var initialized:Boolean;
+		var health:int;
 		
 		public function Pokemon(tempType:String)//CONSTRUCTOR - runs when the program starts
 		//it has the same name as the class name - runs ONLY ONCE
 		{
 			pokeType = tempType;
+			movingEnabled = true;
+			initialized = false;
+			health = -69;
+			pokeType = pokeType.toLowerCase();
 		    this.addEventListener(Event.ENTER_FRAME,gameLoop);
-			trace("created");
+			trace("created a "+tempType);
 			this.gotoAndStop(1);
 			
 			
@@ -114,131 +121,224 @@
 			
 		}//end CONSTRUCTOR
 		
+		public function startMoving(){
+			movingEnabled = true;
+		}
+		public function stopMoving(){
+			movingEnabled = false;
+		}
+		
+		public function setHealth(newHealth:int){
+			
+		}
+
+		public function getProperties(){
+			var tempArray:Array = new Array();
+			tempArray[0] = pokeType;
+			tempArray[1] = health;
+			return tempArray;
+		}
+		
 		public function gameLoop(e:Event)
 		{
 			//trace(this.currentFrame);
+			if(movingEnabled || !initialized){
+				if(pokeType == "arceus"){
+					trace("jay is smart");
+					if (this.currentFrame>=1 && this.currentFrame<=71){
+						trace("looooooool");
+						this.gotoAndStop(this.currentFrame+1);
+						//trace("next");
+					}
+					else if(this.currentFrame==72){
+						trace("laoglfg");
+						this.gotoAndStop(1);				
+					}
+				}
+				if(pokeType == "articuno"){
+					trace("artiiiiiiiiiiiiiiiiiiiiiiiiiiiii");
+					if (this.currentFrame>=73 && this.currentFrame<=95){
+						this.gotoAndStop(this.currentFrame+1);
+					   trace("next");
+					}
+					else if(this.currentFrame==96){
+						this.gotoAndStop(73);	
+					}
+					else{
+						this.gotoAndStop(73);	
+					}
+				}
+				if(pokeType == "charizard"){
+					if (this.currentFrame>=97 && this.currentFrame<=158){
+						this.gotoAndStop(this.currentFrame+1);
+						//trace("next");
+					}
+					else if(this.currentFrame==159){
+						this.gotoAndStop(97);					
+					}
+					else{
+						this.gotoAndStop(97);	
+					}
+				}
+				if(pokeType == "latias"){
+					if (this.currentFrame>=160 && this.currentFrame<=206){
+						this.gotoAndStop(this.currentFrame+1);
+						//trace("next");
+					}
+					else if(this.currentFrame==207){
+						this.gotoAndStop(160);					
+					}
+					else{
+						this.gotoAndStop(160);	
+					}
+				}
+				if(pokeType == "latios"){
+					if (this.currentFrame>=208 && this.currentFrame<=239){
+						this.gotoAndStop(this.currentFrame+1);
+						//trace("next");
+					}
+					else if(this.currentFrame==240){
+						this.gotoAndStop(208);				
+					}
+					else{
+						this.gotoAndStop(208);	
+					}
+				}
+				if(pokeType == "moltres"){
+					if (this.currentFrame>=241 && this.currentFrame<=263){
+						this.gotoAndStop(this.currentFrame+1);
+						//trace("next");
+					}
+					else if(this.currentFrame==264){
+						this.gotoAndStop(241);
+					}
+					else{
+						this.gotoAndStop(241);	
+					}
+				}
+				if(pokeType == "pikachu"){
+					if (this.currentFrame>=265 && this.currentFrame<=290){
+						this.gotoAndStop(this.currentFrame+1);
+						//trace("next");
+					}
+					else if(this.currentFrame==291){
+						this.gotoAndStop(265);	
+					}
+					else{
+						this.gotoAndStop(265);	
+					}
+				}
+				if(pokeType == "registeel"){
+					if (this.currentFrame>=292 && this.currentFrame<=316){
+						this.gotoAndStop(this.currentFrame+1);
+						//trace("next");
+					}
+					else if(this.currentFrame==317){
+						this.gotoAndStop(292);	
+					}
+					else{
+						this.gotoAndStop(292);	
+					}
+				}
+				if(pokeType == "skarmory"){
+					if (this.currentFrame>=319 && this.currentFrame<=359){
+						this.gotoAndStop(this.currentFrame+1);
+						//trace("next");
+					}
+					else if(this.currentFrame==360){
+						this.gotoAndStop(319);				
+					}
+					else{
+						this.gotoAndStop(319);	
+					}
+				}
+				if(pokeType == "zapdos"){
+					if (this.currentFrame>=361 && this.currentFrame<=386){
+						this.gotoAndStop(this.currentFrame+1);
+						//trace("next");
+					}
+					else if (this.currentFrame==387){
+						this.gotoAndStop(361);
+					}
+					else{
+						this.gotoAndStop(361);	
+					}
+				}
+				if(pokeType == "darkrai"){
+					if (this.currentFrame>=388 && this.currentFrame<=449){
+						this.gotoAndStop(this.currentFrame+1);
+						//trace("next");
+					}
+					else if(this.currentFrame==450){
+						this.gotoAndStop(388);					
+					}
+					else{
+						this.gotoAndStop(388);	
+					}
+				}
+				if(pokeType == "gyarados"){
+					if (this.currentFrame>=451 && this.currentFrame<=488){
+						this.gotoAndStop(this.currentFrame+1);
+						//trace("next");
+					}
+					else if(this.currentFrame==489){
+						this.gotoAndStop(451);					
+					}
+					else{
+						this.gotoAndStop(451);	
+					}
+				}
+				if(pokeType == "mew"){
+					if (this.currentFrame>=490 && this.currentFrame<=539){
+						this.gotoAndStop(this.currentFrame+1);
+						//trace("next");
+					}
+					else if(this.currentFrame==540){
+						this.gotoAndStop(490);					
+					}
+					else{
+						this.gotoAndStop(490);	
+					}
+				}
+				if(pokeType == "mewtwo"){
+					if (this.currentFrame>=541 && this.currentFrame<=593){
+						this.gotoAndStop(this.currentFrame+1);
+						//trace("next");
+					}
+					else if(this.currentFrame==594){
+						this.gotoAndStop(541);					
+					}
+					else{
+						this.gotoAndStop(541);	
+					}
+				}
+				if(pokeType == "onix"){
+					if (this.currentFrame>=595 && this.currentFrame<=638){
+						this.gotoAndStop(this.currentFrame+1);
+						//trace("next");
+					}
+					else if(this.currentFrame==639){
+						this.gotoAndStop(595);
+					}
+					else{
+						this.gotoAndStop(595);	
+					}
+				}
+				if(pokeType == "rapidash"){
+					if (this.currentFrame>=640 && this.currentFrame<=659){
+						this.gotoAndStop(this.currentFrame+1);
+						//trace("next");
+					}
+					else if(this.currentFrame==660){
+						this.gotoAndStop(640);					
+					}
+					else{
+						this.gotoAndStop(640);	
+					}
+				}
 			
-			if(pokeType == "arceus"){
-				trace("jay is smart");
-				if (this.currentFrame>=1 && this.currentFrame<=71){
-					trace("looooooool");
-					this.gotoAndStop(this.currentFrame+1);
-					//trace("next");
-				}
-				else if(this.currentFrame==72){
-					trace("laoglfg");
-					this.gotoAndStop(1);				
-				}
-			}
-			if(pokeType == "articuno"){
-				trace("artiiiiiiiiiiiiiiiiiiiiiiiiiiiii");
-				if (this.currentFrame>=73 && this.currentFrame<=95){
-					this.gotoAndStop(this.currentFrame+1);
-				   trace("next");
-				}
-				else if(this.currentFrame==96){
-					this.gotoAndStop(73);	
-				}
-				else{
-					this.gotoAndStop(73);	
-				}
-			}
-			if(pokeType == "charizard"){
-				if (this.currentFrame>=97 && this.currentFrame<=158){
-					this.gotoAndStop(this.currentFrame+1);
-					//trace("next");
-				}
-				else if(this.currentFrame==159){
-					this.gotoAndStop(97);					
-				}
-				else{
-					this.gotoAndStop(97);	
-				}
-			}
-			if(pokeType == "latias"){
-				if (this.currentFrame>=160 && this.currentFrame<=206){
-					this.gotoAndStop(this.currentFrame+1);
-					//trace("next");
-				}
-				else if(this.currentFrame==207){
-					this.gotoAndStop(160);					
-				}
-				else{
-					this.gotoAndStop(160);	
-				}
-			}
-			if(pokeType == "latios"){
-				if (this.currentFrame>=208 && this.currentFrame<=239){
-					this.gotoAndStop(this.currentFrame+1);
-					//trace("next");
-				}
-				else if(this.currentFrame==240){
-					this.gotoAndStop(208);				
-				}
-				else{
-					this.gotoAndStop(208);	
-				}
-			}
-			if(pokeType == "moltres"){
-				if (this.currentFrame>=241 && this.currentFrame<=263){
-					this.gotoAndStop(this.currentFrame+1);
-					//trace("next");
-				}
-				else if(this.currentFrame==264){
-					this.gotoAndStop(241);
-				}
-				else{
-					this.gotoAndStop(241);	
-				}
-			}
-			if(pokeType == "pikachu"){
-				if (this.currentFrame>=265 && this.currentFrame<=290){
-					this.gotoAndStop(this.currentFrame+1);
-					//trace("next");
-				}
-				else if(this.currentFrame==291){
-					this.gotoAndStop(265);	
-				}
-				else{
-					this.gotoAndStop(265);	
-				}
-			}
-			if(pokeType == "registeel"){
-				if (this.currentFrame>=292 && this.currentFrame<=316){
-					this.gotoAndStop(this.currentFrame+1);
-					//trace("next");
-				}
-				else if(this.currentFrame==317){
-					this.gotoAndStop(292);	
-				}
-				else{
-					this.gotoAndStop(292);	
-				}
-			}
-			if(pokeType == "skarmory"){
-				if (this.currentFrame>=318 && this.currentFrame<=359){
-					this.gotoAndStop(this.currentFrame+1);
-					//trace("next");
-				}
-				else if(this.currentFrame==360){
-					this.gotoAndStop(318);				
-				}
-				else{
-					this.gotoAndStop(318);	
-				}
-			}
-			if(pokeType == "zapdos"){
-				if (this.currentFrame>=361 && this.currentFrame<=386){
-					this.gotoAndStop(this.currentFrame+1);
-					//trace("next");
-				}
-				else if (this.currentFrame==387){
-					this.gotoAndStop(361);
-				}
-				else{
-					this.gotoAndStop(361);	
-				}
-			}
+				initialized = true;
+			}//end movingenabled if
 			
 		}//gameloop
 	}//end class
