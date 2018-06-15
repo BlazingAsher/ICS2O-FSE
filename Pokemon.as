@@ -4,23 +4,19 @@
 	import flash.events.*;
 	public class Pokemon extends MovieClip
 	{
-		var pokeType:String;
-		var lightningArr,fireArr,metalArr,airArr,ghostArr,bossArr,movesArr:Array;
-		var pMove:int;
-		var movingEnabled:Boolean;
-		var initialized:Boolean;
-		var health:int;
+		var pokeType:String;//name of the pokemon
+		var movingEnabled:Boolean;//whether the pokemon should be animation
+		var initialized:Boolean;//whether the pokemon is initialized (prevents permature stop of frame)
 		
 		public function Pokemon(tempType:String)//CONSTRUCTOR - runs when the program starts
 		//it has the same name as the class name - runs ONLY ONCE
 		{
+			//initalizes the variables
 			pokeType = tempType;
 			movingEnabled = true;
 			initialized = false;
-			health = -69;
 			pokeType = pokeType.toLowerCase();
 		    this.addEventListener(Event.ENTER_FRAME,gameLoop);
-			trace("created a "+tempType);
 			this.gotoAndStop(1);
 			
 			
@@ -121,34 +117,25 @@
 			
 		}//end CONSTRUCTOR
 		
-		public function startMoving(){
+		public function startMoving(){//start the animation
 			movingEnabled = true;
 		}
-		public function stopMoving(){
+		public function stopMoving(){//stop the animation
 			movingEnabled = false;
-		}
-		
-		public function setHealth(newHealth:int){
-			health = newHealth;
 		}
 
 		public function getProperties(){
 			var tempArray:Array = new Array();
 			tempArray[0] = pokeType;
-			tempArray[1] = health;
 			return tempArray;
 		}
 		
 		public function gameLoop(e:Event)
 		{
-			//trace(this.currentFrame);
-			if(movingEnabled || !initialized){
+			if(movingEnabled || !initialized){//if moving enabled, or the frame has never been changed from the default
 				if(pokeType == "arceus"){
-					trace("jay is smart");
 					if (this.currentFrame>=1 && this.currentFrame<=71){
-						trace("looooooool");
 						this.gotoAndStop(this.currentFrame+1);
-						//trace("next");
 					}
 					else if(this.currentFrame==72){
 						trace("laoglfg");
@@ -156,10 +143,8 @@
 					}
 				}
 				if(pokeType == "articuno"){
-					trace("artiiiiiiiiiiiiiiiiiiiiiiiiiiiii");
 					if (this.currentFrame>=73 && this.currentFrame<=95){
 						this.gotoAndStop(this.currentFrame+1);
-					   trace("next");
 					}
 					else if(this.currentFrame==96){
 						this.gotoAndStop(73);	
@@ -337,7 +322,7 @@
 					}
 				}
 			
-				initialized = true;
+				initialized = true;//the pokemon has gone through at least one cycle
 			}//end movingenabled if
 			
 		}//gameloop

@@ -6,13 +6,10 @@
 	import flash.ui.Keyboard;
 	public class MainFSE extends MovieClip
 	{
-		var levelTut,levelOne,levelTwo,levelThree,levelFour,levelFive,levelSix,levelSeven:Level;
-		var battleArena:Arena;
-		var sideMenu:SideMenu;
-		var keyboardCapture:String;
-		var level:int;
-		var settings:Dictionary;
-		var inv:Array;
+		var levelTut,levelOne,levelTwo,levelThree,levelFour,levelFive,levelSix,levelSeven:Level;//every level is an object
+		var level:int;//specifies the current level
+		var settings:Dictionary;//program settings (music on/off)
+		var inv:Array;//the player inventory
 		var finale:EndScene;
 		
 		public function MainFSE()//CONSTRUCTOR - runs when the program starts
@@ -22,7 +19,7 @@
 			
 		}//end CONSTRUCTOR
 		
-		public function initAll(){
+		public function initAll(){//creates all assets
 			//menu has level number -1
 			
 			settings = new Dictionary();
@@ -30,37 +27,36 @@
 			
 			var pokemon:Dictionary = new Dictionary();
 			//name, order, hp, move1, move2, move3, move4 (MOVES ARE EMPTY BEFORE FIRST BATTLE)
-			pokemon['latios'] = new Array("latios",1,0);
-			pokemon['pikachu'] = new Array("pikachu",1,100);
-			pokemon['skarmory'] = new Array("skarmory",1,48);
-			pokemon['moltres'] = new Array("moltres",1,100);
-			pokemon['charizard'] = new Array("charizard",1,100);
-			pokemon['latias'] = new Array("latias",1,100);
+			//each pokemon is an array of 7 properties
+			
+			//each item is an item in a dictionary which returns the number in the player's inventory
 			var items:Dictionary = new Dictionary();
-			items['testtest'] = 1;
-			items['potion'] = 15;
+			items['potion'] = 3;
 			items['money'] = 1000;
+			
+			//inv is an array of two dictionaries - pokemon are stored in pokemon and items are stored in items
 			inv = new Array(pokemon,items);
 			
-			level = 0;
+			level = 0;//the level to tutorial
 			
-			levelTutInit();
+			levelTutInit();//initialize the tutorial
 			
 			stage.addEventListener(Event.ENTER_FRAME,gameLoop);
 			stage.addEventListener(KeyboardEvent.KEY_DOWN,movePlayer);
 			stage.addEventListener(KeyboardEvent.KEY_UP,unMovePlayer);
 		}
 		
-		public function levelTutInit(){
-			var dataArray = new Array();
+		public function levelTutInit(){//each level nit follows this patter
+			var dataArray = new Array();//create an array to store settings and the player's inventory
 			dataArray[0] = settings;
 			dataArray[1] = inv;
 			
+			//create the level itself - the constructor asks for the level # and the dataArray
 			levelTut = new Level(0,dataArray);
 			levelTut.x = 275;
 			levelTut.y = 200;
 			trace("added tut");
-			stage.addChild(levelTut);
+			stage.addChild(levelTut);//add the level to the stage
 		}
 		
 		public function levelOneInit(){
@@ -74,6 +70,7 @@
 			levelOne.y = 200;
 			stage.addChild(levelOne);
 			
+			levelOne.addEventListener(MouseEvent.CLICK,levelOne.printMouse);
 		}
 		
 		public function levelTwoInit(){
@@ -143,26 +140,15 @@
 		
 		public function finaleInit(){
 			finale = new EndScene();
-			finale.x = 257;
+			finale.x = 275;
 			finale.y = 200;
 			stage.addChild(finale);
 		}
 		
 		public function movePlayer(e:KeyboardEvent){
-			
-/*			if((e.keyCode == Keyboard.TAB || e.keyCode == Keyboard.ESCAPE) && level != -1 && level != 0){
-				trace("capture")
-				trace("level is: " + level);
-				sideMenu.setLevelOnOpen(level);
-				level = -1;
-				sideMenu.resetTimer();
-				stage.addChild(sideMenu);
-				trace('added');
-			}
-			*/
 			//tutorial is 0, levels are 1-6, maze + final is 7
 			
-			switch(level){
+			switch(level){//depending on the level, the keystorkes will be sent to the appropriate level
 				case 0:
 					levelTut.handleKeyboardDown(e);
 					break;
@@ -190,14 +176,12 @@
 				case 8:
 					finale.handleKeyboardDown(e);
 					break;
-				default:
-					trace("other level");
 			}
 			
 		}
 		
 		public function unMovePlayer(e:KeyboardEvent){
-			switch(level){
+			switch(level){//depending on the level, the keystorkes will be sent to the appropriate level
 				case 0:
 					levelTut.handleKeyboardUp(e);
 					break;
@@ -225,33 +209,35 @@
 				case 8:
 					finale.handleKeyboardUp(e);
 					break;
-				default:
-					trace("other level");
 			}
 		}
 		
 		public function checkLevelDone(){
-			var tempArray:Array = new Array();
-			switch(level){
+			//checks if the current level is done (switch to the next level)
+			
+			var tempArray:Array = new Array();//temporary array of settings and inv
+			
+			
+			switch(level){//each level runs the same code, only the class name is changed
 				case 0:
-					if(levelTut.getIsFinished()){
+					if(levelTut.getIsFinished()){//check if the level is done
 						stage.removeChild(levelTut);
 						level = 1;
 						levelTut = null;
-						levelOneInit();
+						levelOneInit();//initialize the next level
 					}
 					break;
 				case 1:
-					if(levelOne.getIsFinished()){
+					if(levelOne.getIsFinished()){//check if the level is done
 						trace("received level1 done");
 						stage.removeChild(levelOne);
 						
-						tempArray= levelOne.transferData();
-						inv = tempArray[1];
+						tempArray= levelOne.transferData();//transfer the data from the old level
+						inv = tempArray[1];//update MainFSE's player inventory
 						
-						level = 2;
+						level = 2;//set the tracking variables to the next level
 						levelOne = null;
-						levelTwoInit();
+						levelTwoInit();//initialize the next level
 					}
 					break;
 				case 2:
@@ -341,13 +327,11 @@
 						//destroy everything
 
 						finale = undefined;
-						battleArena = undefined;
-						keyboardCapture = undefined;
 						level = undefined;
 						settings = undefined;
 						inv = undefined;
 						
-						//keep going
+						//restart the game and reinitialize everything
 						initAll();
 						
 						//exit
@@ -359,8 +343,6 @@
 		public function gameLoop(e:Event)
 		{
 			checkLevelDone();
-			//levelOne.x = mouseX;
-			//levelOne.y = mouseY;
 		}
 	}//end class
 }//end package

@@ -35,7 +35,7 @@
 			
 		}//end CONSTRUCTOR
 		
-		public function setText(mess:String){
+		public function setText(mess:String){//sets the messagebox type
 			//store the message's letters into an array
 			//27-36 are numbers!
 			var tempArray:Array = new Array();
@@ -66,7 +66,14 @@
 						frameNumber = tempArray[i].charCodeAt(0)-21;//convert the number into the proper frame
 						trace("frame is: "+tempArray[i].charCodeAt(0)); 
 					}
+					else if(tempArray[i] == "."){//check if it is a period
+						frameNumber = 37;
+					}
+					else if(tempArray[i] == ","){//check if it is a comma
+						frameNumber = 38;
+					}
 					
+					//create the letter
 					var letter:Letter = new Letter(frameNumber);
 					
 					letter.scaleX = 0.2;
@@ -82,6 +89,7 @@
 						startx = -495;
 					}
 					
+					//hide the letter; it will be revealed later
 					letter.alpha = 0;
 					letterArray.push(letter);
 					this.addChild(letter);
@@ -114,7 +122,7 @@
 			textDone = false;
 		}
 		
-		public function changeBox(type:String){
+		public function changeBox(type:String){//change the box type (background)
 			switch(type){
 				case "message":
 					boxType = type;
@@ -131,11 +139,11 @@
 			}
 		}
 		
-		public function getResponse(){
+		public function getResponse(){//returns the user's response
 			return userResponse;
 		}
 		
-		public function createPrompt(){
+		public function createPrompt(){//creates the yes/no prompt
 			if(!promptActive){//check there is not already a prompt
 							
 				//create yesno box
@@ -160,7 +168,7 @@
 			}
 		}
 		
-		public function destroyPrompt(){
+		public function destroyPrompt(){//deletes the yes/no prompt
 			if(promptActive){//if there is a yesno
 				//destroy EVERYTHING
 				this.removeChild(yesNo);
@@ -171,7 +179,7 @@
 			}
 		}
 		
-		public function handleKeyboardDown(e:KeyboardEvent){
+		public function handleKeyboardDown(e:KeyboardEvent){//handles keyboard down
 			if(promptActive){//if there is a prompt
 				if(e.keyCode == Keyboard.DOWN){//move pointer down, or loop it back around
 					//moves the pointer
@@ -193,18 +201,18 @@
 				}
 			}
 			
-			if(e.keyCode == Keyboard.ENTER && textDone){
-				if(promptActive){
+			if(e.keyCode == Keyboard.ENTER && textDone){//if the text is finished displaying and user presses enter
+				if(promptActive){//there was a prompt, so return the value (0 = no, 1 = yes)
 					userResponse = (pointer.y+183)/-62;
 					trace(userResponse);
 				}
-				else{
+				else{//no prompt, but the user has interacted
 					userResponse = -2;
 				}
 			}
 		}
 		
-		public function handleKeyboardUp(e:KeyboardEvent){
+		public function handleKeyboardUp(e:KeyboardEvent){//handles keyboard up (no use)
 			//empty on purpose!
 		}
 		

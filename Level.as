@@ -16,41 +16,51 @@
 
 	public class Level extends MovieClip
 	{
-		var levelTimer:Timer;
-		var vx,vy:int;
-		var p:Ash;
-		var settings:Dictionary;
-		var borderTracker:BorderTracker;
-		var assetArray,borderArray,actionItemArray:Array;
-		var troubleshooting:Boolean;
-		var globalWalking:Boolean;
-		var globalDir:int;
-		var isFinished:Boolean;
-		var walkingDisabled:Boolean;
-		var ctrlDown:Boolean;
-		var actionItem:ActionItem;
-		var messageBox:MessageBox;
-		var prompting:Boolean;
-		var userResponse:int;
-		var inside:Boolean;
-		var blocker:Blocker;
-		var battling:Boolean;
+		var vx,vy:int;//velocity of the player
+		var p:Ash;//the player
+		
+		var levelNumber:int;//keep track of the current level
+		var settings:Dictionary;//settings of the game (music on/off)
+		
+		var arena:Arena;//self explanatory
+		var tut:Tutorial;//self explanatory (tutorial runs itself)
+		
+		var messageBox:MessageBox;//self explanatory
+		var blocker:Blocker;//black background, used to fade in/out and hide stuff
+		var sideMenu:SideMenu;//menu that shows the player's inventory and status
+		
+		var boss:NonPlayerCharacter;//the boss of the level
+		var occupant:NonPlayerCharacter;//occupants of the houses
+		
+		var borderTracker:BorderTracker;//objects that the player cannot touch (borders, houses, etc)
+		var actionItem:ActionItem;//objects that the player can interact with (doors, signs, characters)
+		var borderArray,actionItemArray:Array;//arrays to store borderTrackers and ActionItems, respectively
+		var darknessEffect:DarknessEffect;//darkness effect for last level
+		
+		var globalWalking:Boolean;//whether the player is walking
+		var globalDir:int;//the direction the player is walking
+		
+		var isFinished:Boolean;//if the level is complete
+		var walkingDisabled:Boolean;//if the player should be frozen
+		var ctrlDown:Boolean;//whether the ctrl key is down or not
+		var prompting:Boolean;//whether the player is currently being prompted for something
+		var battling:Boolean;//whether the player is battling
+		var inMenu:Boolean;//whether the player has the menu open
+		var inTutorial:Boolean;//whether the player is in the tutorial
+		var generatedTeam:Boolean;//whether the player has generated a team
+		
+		//music stuff
 		var bgMusic:BgMusic;
 		var bgMusicChannel:SoundChannel;
 		var bgSoundTransform:SoundTransform;
-		var arena:Arena;
-		var tempBarrierActionArray:Array;
-		var boss:NonPlayerCharacter;	
-		var inTutorial:Boolean;
-		var tut:Tutorial;
-		var darknessEffect:DarknessEffect;
-		var levelNumber:int;
-		var sideMenu:SideMenu;
-		var menuArray:Array;
-		var inMenu:Boolean;
-		var txtPotionNumber:TextField;
-		var txtMoneyNumber:TextField;
-		var txtMenuFormat:TextFormat;
+		
+		var tempBorderActionArray:Array;//array to store the borders and action items of the outside while the player is inside
+		var beforeInsideInfo:Array;//array to store the location of the player and map before going inside
+		var menuArray:Array;//array that stores all assets created when the player opens the menu
+		
+		var txtPotionNumber:TextField;//number of potions (menu)
+		var txtMoneyNumber:TextField;//amount of money (menu)
+		var txtMenuFormat:TextFormat;//white text, Tekton Pro Ext
 		
 		//w = 1600
 		//h = 668
@@ -58,26 +68,34 @@
 		public function Level(levelNumber:int,dataArray:Array)//CONSTRUCTOR - runs when the program starts
 		//it has the same name as the class name - runs ONLY ONCE
 		{
+			//set the default values for all variables
 			prompting = false;
-			inside = false;
 			inTutorial = false;
 			inMenu = false;
 			battling = false;
+			generatedTeam = false;
+			isFinished = false;
+			
+			//creates the background music
 			bgMusic = new BgMusic();
 			
+			//loads the settings passed from the main class
 			settings = dataArray[0];
 			updateSettings(settings);
+			
+			//creates the player and loads its inventory that was passed from the main class
 			p = new Ash();
 			p.setInventory(dataArray[1]);
 			
-			fadeIn();
+			fadeIn(); //cool fade in
 			
-			createAssets(levelNumber);
+			createAssets(levelNumber);//start creating the assets for each level
 			this.addEventListener(Event.ENTER_FRAME,gameLoop);
 			
 		}//end CONSTRUCTOR
 		
 		public function fadeIn(){
+			//slowly sets alpha of blocker to 0
 			blocker = new Blocker();
 			this.addChild(blocker);
 			blocker.alpha = 0;
@@ -85,6 +103,7 @@
 		}
 		
 		public function fadeOut(){
+			//slowly sets alpha of blocker to 1
 			blocker = new Blocker();
 			this.addChild(blocker);
 			blocker.alpha = 0;
@@ -92,47 +111,63 @@
 		}
 		
 		public function manageMenu(state:String){
-			if(state == "open" && !inMenu){
+			if(state == "open" && !inMenu){//if the menu is being called to open and there is not one already opened
 				inMenu = true;
+				
+				//initialize the assets of the menu
 				menuArray = new Array();
 				sideMenu = new SideMenu();
+				
+				//convert the global center to local coordinates
 				var myPoint:Point = this.globalToLocal(new Point(275,200));
 				sideMenu.x = myPoint.x;
 				sideMenu.y = myPoint.y;
+				
+				//loops through the player's pokemon and draws them in two rows
 				var i:int = 0;
 				for each(var poke in p.getInventory()[0]){					
-					var pokeImage:Pokemon = new Pokemon(poke[0]);//draw the choose pokemon pokemon
+					var pokeImage:Pokemon = new Pokemon(poke[0]);//draw the pokemon placeholder
+					
+					//coordinates of the placeholder
 					pokeImage.x = -131 + 135*i;
 					pokeImage.y = -60;
-					if(i>2){
+					if(i>2){//next row
 						pokeImage.x = -131 + 135*(i-3);
 						pokeImage.y = 45;
 					}
-					if(poke[2]<1){
+					
+					//tints the pokemon based on its health
+					if(poke[2]<1){//red = <1 hp
 						pokeImage.transform.colorTransform = new ColorTransform(1.25,0,0,1,0,0,0,0);
 					}
-					else if(poke[2]<51){
+					else if(poke[2]<51){//yellow = <51 hp
 						pokeImage.transform.colorTransform = new ColorTransform(1.25,1.25,0,1,0,0,0,0);
 					}
-					else{
+					else{//green = >50 hp
 						pokeImage.transform.colorTransform = new ColorTransform(0,1.25,0,1,0,0,0,0);
 					}
+					
+					//add into an array
 					menuArray.push(pokeImage);
 					sideMenu.addChild(pokeImage);
 					i++;
 				}
 				
+				//initialize the text
 				txtMenuFormat = new TextFormat();
 				txtPotionNumber = new TextField();
 				txtMoneyNumber = new TextField();
 				
+				//change the text to white and Tekton Pro Ext
 				txtMenuFormat.color = 0xFFFFFF;
 				txtMenuFormat.size = 20;
 				txtMenuFormat.font = "Tekton Pro Ext";
 				
+				//Update the default text format
 				txtPotionNumber.defaultTextFormat = txtMenuFormat;
 				txtMoneyNumber.defaultTextFormat = txtMenuFormat;
 				
+				//set the number of potions
 				txtPotionNumber.text = p.getInventory()[1]['potion'].toString();
 				txtPotionNumber.x = -166;
 				txtPotionNumber.y = 131;
@@ -140,6 +175,7 @@
 				menuArray.push(txtPotionNumber);
 				sideMenu.addChild(txtPotionNumber);
 				
+				//set the amount of money
 				txtMoneyNumber.text = p.getInventory()[1]['money'].toString();
 				txtMoneyNumber.x = -178;
 				txtMoneyNumber.y = 158;
@@ -147,16 +183,17 @@
 				menuArray.push(txtMoneyNumber);
 				sideMenu.addChild(txtMoneyNumber);
 				
-				trace("saghsag: " + sideMenu.contains(txtMoneyNumber));
-				
+				//add to stage
 				this.addChild(sideMenu);
 				
 			}//end open if
-			else if(state == "close" && inMenu){
-				for(var j:int=0;j<menuArray.length;j++){
+			else if(state == "close" && inMenu){//if the menu is being called to close and there is a menu open
+				for(var j:int=0;j<menuArray.length;j++){//delete all menu stuff from the stage
 					sideMenu.removeChild(menuArray[j]);
 					menuArray[j] = undefined;
 				}
+				
+				//unset variables
 				menuArray = undefined;
 				this.removeChild(sideMenu);
 				sideMenu = undefined;
@@ -164,86 +201,97 @@
 			}
 		}
 		
-		public function getIsFinished(){
+		public function getIsFinished(){//returns whether the level is complete
 			return isFinished;
 		}
 		
-		public function transferData(){
+		public function transferData(){//returns the current settings and the updated player inventory
 			var dataArray = new Array();
 			dataArray[0] = settings;
 			dataArray[1] = p.getInventory();
 			return dataArray;
 		}
 		
-		public function updateSettings(tempSettings:Dictionary){
+		public function updateSettings(tempSettings:Dictionary){//changes the settings to new one passed
 			settings = tempSettings;
-			if(settings['music']){
-				trace("player music");
+			if(settings['music']){//if music is enabled, start it
+				trace("playing music");
 				bgMusicChannel = bgMusic.play(0,int.MAX_VALUE);
 				bgSoundTransform = bgMusicChannel.soundTransform;
 				bgSoundTransform.volume = 0.75;
 				bgMusicChannel.soundTransform = bgSoundTransform;
 				TweenMax.from(bgMusicChannel,3,{volume:0});
-			}else{
-				try{
+			}else{//if not, stop it
+				try{//in case there is already no music playing
 					bgMusicChannel.stop();
 				}
 				catch(error:Error){
-					trace("error!");
+					trace("no music was playing");
 				}
-				//turn off music
 			}
 		}
 		
-		public function exitLevel(){
+		public function exitLevel(){//clean everything up before closing the level
 			try{
-				trace('asfgafsg');
-				bgMusicChannel.stop();
 				this.removeEventListener(Event.ENTER_FRAME,gameLoop);
-				fadeOut();
-				TweenMax.delayedCall(0.5,setFinished,[]);
+				fadeOut();//fades out
+				TweenMax.delayedCall(0.5,setFinished,[]);//delay to set isFinished to true (everything is blocked by the blocker)
+				bgMusicChannel.stop();//stop music			
 			}
-			catch(error:Error){
-				trace("error");
+			catch(error:Error){//there was no music playing
+				trace("no music was playing");
 			}
 		}
 		
-		public function setFinished(){
+		public function setFinished(){//sets isFinished to true
 			isFinished = true;
 		}
 		
-		public function createAssets(tempLevelNumber:int){
-			//right is increase
-			//left is decrease
-			
-			//down is increase
-			//up is decrease
-			
-			isFinished = false;
-			
-			assetArray = new Array();
+		public function createAssets(tempLevelNumber:int){//creates assets based on the level
+
+			//cretes all the storage arrays
 			borderArray = new Array();
 			actionItemArray = new Array();
 			
+			//creates the message box
 			messageBox = new MessageBox();
 			messageBox.scaleX = 0.46;
 			messageBox.scaleY = 0.46;
 			messageBox.x = 0;
 			messageBox.y = 150;
 			
+			//set the level number
 			levelNumber = tempLevelNumber;
 			
-			switch(levelNumber){//create borders based on the level
-				case 0:
-					inTutorial = true;
-					walkingDisabled = true;
-					p.alpha = 0;
+			//set player velocity to 0
+			vx = 0;
+			vy = 0;
+			
+			/*
+			The functions createBorders and registerAction create borders and action items, respectively
+			
+			Syntax is:
+			
+			createBorders(startx,starty,lengthx,lengthy)
+			registerAction(startx,starty,lengthx,lengthy,type,message/destination)
+			*/
+			
+			//0 is tutorial, rest of levels follow suit
+			switch(levelNumber){
+				case 0://tutorial
+					inTutorial = true;//starts checking if the tutorial is finished
+					walkingDisabled = true;//disables walking
+					p.alpha = 0;//hides player
+				
+					//change to right frame
 					this.gotoAndStop(1);
 					
+					//creates the tutorial
 					tut = new Tutorial();
 					this.addChild(tut);
 					break;
 				case 1:
+					
 					//Create barriers
 					
 					//createBorders(x,y,sizex,sizey)
@@ -274,6 +322,9 @@
 					
 					//Create ActionItem handlers
 					//registerAction(-505,200,115,95,"sign","Citizens%that%oppose%math%are%subject%to%interrogation");
+					
+					registerAction(37,-104,20,20,"portal","portal");
+					registerAction(-252,-104,20,20,"genPoke","genPoke");
 					
 					 //Set frame
 					this.gotoAndStop(2);
@@ -410,6 +461,7 @@
 					
 					//Set frame
 					this.gotoAndStop(4);
+					
 					//Set player coordinates
 					
 					break;
@@ -449,11 +501,11 @@
 					//Create ActionItem handlers
 					
 					//house1door
-					registerAction(-252,-167,20,20,"sign","There%is%no%handle");
+					registerAction(-252,-164,20,20,"sign","There%is%no%handle");
 					//house2door
 					registerAction(6,181,20,20,"sign","There%is%no%one%home");
 					//martdoor
-					registerAction(197,179,20,20,"door","shop");
+					registerAction(197,182,20,20,"door","shop");
 					//pcdoor
 					registerAction(-28,-105,20,20,"door","pc");
 					//sign
@@ -469,6 +521,7 @@
 					
 					//Set frame
 					this.gotoAndStop(5);
+					
 					//Set player coordinates
 					
 					break;
@@ -521,6 +574,7 @@
 					
 					//Set frame
 					this.gotoAndStop(6);
+					
 					//Set player coordinates
 					
 					break;
@@ -587,6 +641,7 @@
 					
 					//Set frame
 					this.gotoAndStop(7);
+					
 					//Set player coordinates
 					
 					break;
@@ -649,6 +704,9 @@
 					//finalboss
 					registerAction(452,-25,20,20,"trainer","5");
 					
+					//Set frame
+					this.gotoAndStop(8);					
+					
 					//Add boss
 					boss = new NonPlayerCharacter();
 					boss.x = 459;
@@ -658,7 +716,7 @@
 					boss.gotoAndStop(7);
 					this.addChild(boss);
 					
-					//Darkness Effect
+					//Add the darkness effect (make the maze harder)
 					darknessEffect = new DarknessEffect();
 					darknessEffect.x = 765
 					darknessEffect.y = 210;
@@ -666,79 +724,71 @@
 					darknessEffect.scaleY = 1.25;
 					this.addChild(darknessEffect);
 					
-					//Set frame
-					this.gotoAndStop(8);
-					
 					//Set player coordinates
 					p.x = 765;
 					p.y = 210;
-					trace("lol" + this.x);
-					break;
-					
-				case 8:
-					
 					break;
 			}
 			
-			vx = 0;
-			vy = 0;
-			
+			//setup the player
 			p.gotoAndStop(1);
 			p.scaleX=0.7;
 			p.scaleY=0.7;
 			this.addChild(p);
-			trace(p.x);
 		}
 		
-		public function createPrompt(type:String,promptText:String,yesno:Boolean){
+		public function createPrompt(type:String,promptText:String,yesno:Boolean){//creates a messagebox
+			//convert global center to local coordinates
 			var myPoint:Point = this.globalToLocal(new Point(275,350));
-			
-			trace ("x: " + myPoint.x); // output: -100 
-			trace ("y: " + myPoint.y); // output: -100
-			
 			
 			messageBox.x = myPoint.x;
 			messageBox.y = myPoint.y;
 			
 			this.addChild(messageBox);
-			messageBox.setText(promptText);
-			messageBox.changeBox(type);
-			messageBox.startReveal();
-			if(yesno){
+			
+			//setup the messagebox
+			messageBox.setText(promptText);//set the text
+			messageBox.changeBox(type);//change the message box type (battlenoti, battleprompt, message)
+			messageBox.startReveal();//start revealing the letters
+			
+			if(yesno){//create a yes/no prompt
 				messageBox.createPrompt();
 			}
-			prompting = true;
+			prompting = true;//redirect keyboard to messagebox
 		}
 		
-		public function checkPrompt(){
+		public function checkPrompt(){//gets the messagebox response and acts accordinly
 			if(prompting){
 				var userData = messageBox.getResponse();
-				//trace(userData);
-				if(userData != -1){
-					trace("destroying");
-					messageBox.destroyPrompt()
-					messageBox.resetBox();
+				//valid responses are -2, -1, 0, 1
+				//-2 means there was no yes/no prompt but the user has pressed enter (close prompt)
+				//-1 means the user has not interacted at all
+				//0 means no
+				//1 means yes
+				
+				if(userData != -1){//if the user has interacted
+					messageBox.destroyPrompt();//remove the yes/no prompt
+					messageBox.resetBox();//reset the messagebox
 					this.removeChild(messageBox);
-					prompting = false;
-					userResponse = userData;
+					prompting = false;//stop redirecting keystrokes to the messagebox
 				}
 			}
 		}
 		
-		public function createBorders(startX:int,startY:int,len:int,wid:int){
-			//ADAPT
-			//len: length of border (in pixels)
-			//wid: width of border (in pixles)
+		public function createBorders(startX:int,startY:int,len:int,wid:int){//creates zones that are inaccessible to the player
 			//startx: starting x of border
 			//starty: starting y of border
+			//len: length of border (in pixels)
+			//wid: width of border (in pixles)
 			
 			borderTracker = new BorderTracker();
+			//grows or shrinks border based on the length and width provided
 			borderTracker.scaleX=len/20;
 			borderTracker.scaleY=wid/20;
 			borderTracker.x = startX;
 			borderTracker.y = startY;
-			borderTracker.alpha = 0.5;
-			//borderTracker.alpha = 0;
+			//borderTracker.alpha = 0.5;
+			borderTracker.alpha = 0;//make it invisible
 			borderArray.push(borderTracker);
 			this.addChild(borderTracker);
 			
@@ -750,39 +800,61 @@
 			actionItem.scaleY=wid/20;
 			actionItem.x = startX;
 			actionItem.y = startY;
-			actionItem.alpha = 0.5;
-			//actionItem.alpha = 0;
+			//actionItem.alpha = 0.5;
+			actionItem.alpha = 0;//make it invisible
 			actionItemArray.push(actionItem);
 			this.addChild(actionItem);
 		}
 		
-		public function startBattle(gym:String){
-			if(!battling){
-				if(prompting){
+		public function generatePokemon(){//generates a player's pokemon party
+			var pokeArray:Array;//all avaiable pokemon
+			pokeArray = ['pikachu','zapdos','moltres','charizard','registeel','skarmory','arceus','articuno','latios','latias'];
+			
+			//generate all the pokemon
+			var tempPlayerInv:Array = p.getInventory();//gets the player inventory
+			tempPlayerInv[0] = undefined;//clear all pokemon
+			tempPlayerInv[0] = new Dictionary();//reinitialize the pokemon dictionary
+			
+			//generate 6 pokemon
+			for(var i:int=0;i<6;i++){
+				var pokeNumber:int = Math.random()*(10-i);
+				trace(pokeArray[pokeNumber]);
+				tempPlayerInv[0][pokeArray[pokeNumber]] = [pokeArray[pokeNumber],-10,100];//create a pokemon with priority -10 and health 100
+				//since the player cannot have duplicate pokemon, we need to remove from it array
+				pokeArray.splice(pokeNumber,1);
+			}
+			p.setInventory(tempPlayerInv);//update the player inventory
+		}
+		
+		public function startBattle(gym:String){//start a battle
+			if(!battling){//make sure the player is not battling already
+				if(prompting){//if a pre-battle message was shown, close it
 					messageBox.destroyPrompt()
 					messageBox.resetBox();
 					this.removeChild(messageBox);
 					prompting = false;
 				}
-				arena = new Arena(p.getInventory(),gym);
+				//initialize the arena
+				arena = new Arena(p.getInventory(),gym);//pass the player inventory and the gym name into the arena
+				
+				//convert global center to local
 				var myPoint:Point = this.globalToLocal(new Point(275,200));
 				arena.x = myPoint.x;
 				arena.y = myPoint.y;
 				this.addChild(arena);
-				battling = true;
-				globalWalking = false;
+				battling = true;//redirect keystrokes to the arena
+				globalWalking = false;//disable walking
 			}
 		}
 		
-		public function handleKeyboardDown(e:KeyboardEvent){
-			if(prompting){
-				//trace("prompting");
+		public function handleKeyboardDown(e:KeyboardEvent){//handles keyboard down
+			if(prompting){//if prompting, redirect to prompt
 				messageBox.handleKeyboardDown(e);
 			}
-			else if(battling){
+			else if(battling){//if battling, redirect to arena
 				arena.handleKeyboardDown(e);
 			}
-			else if(!walkingDisabled){
+			else if(!walkingDisabled){//if walking is not disabled
 				if(e.keyCode == Keyboard.UP){
 					doWalkingAnimation(true,2);
 					vx = 0;
@@ -803,35 +875,21 @@
 					vy = 0;
 					vx = 5;
 				}
-				if(e.keyCode == Keyboard.CONTROL){
+				if(e.keyCode == Keyboard.CONTROL){//if the player is pressing control, update the boolean
 					ctrlDown = true;
-					if(vx>0){
-						vx+=10;
-					}
-					else if(vy>0){
-						vy+=10;
-					}
 				}
-				if(e.keyCode == Keyboard.TAB){
+				if(e.keyCode == Keyboard.TAB){//open the menu
 					manageMenu("open");
 				}
+				
 			}
-			if(e.keyCode == Keyboard.SHIFT){
-					exitLevel();
-					//trace("done level1");
-			}
-			/*if(e.keyCode == Keyboard.INSERT){
-				trace(p.getInventory());
-				trace(p.getInventory()[0]['blatie']);
-				trace(p.getInventory()[1]);
-			}*/
-			}
+		}
 		
-		public function handleKeyboardUp(e:KeyboardEvent){
-			if(battling){
+		public function handleKeyboardUp(e:KeyboardEvent){//handles keyboard up
+			if(battling){//if battling, redirect to arena
 				arena.handleKeyboardUp(e);
 			}
-			else if(!walkingDisabled){
+			else if(!walkingDisabled){//if walking is not disabled
 				if(e.keyCode == Keyboard.UP){
 					vy = 0;
 					doWalkingAnimation(false,2);
@@ -855,106 +913,71 @@
 					trace("px: " + p.x + " py: " + p.y);
 					trace("mx: " + this.x + " my: " + this.y);
 				}
-				if(e.keyCode == Keyboard.CONTROL){
+				if(e.keyCode == Keyboard.CONTROL){//ctrl is released, update the boolean
 					ctrlDown = false;
-					if(vx>0){
-						vx-=10;
-					}
-					else if(vy>0){
-						vy-=10;
-					}
 				}
-				if(e.keyCode == Keyboard.TAB){
+				if(e.keyCode == Keyboard.TAB){//close the menu
 					manageMenu("close");
 				}
 			}
 			
 		}
 		
-		public function doWalkingAnimation(walking:Boolean,dir:int){
-			globalWalking=walking;
-			globalDir=dir;
+		public function doWalkingAnimation(walking:Boolean,dir:int){//sets the variables to start the animation
+			globalWalking=walking;//if the player is walking
+			globalDir=dir;//the direction the player is walking
 			
 		}
 		
 		public function movePlayer(){
-			//trace(outOfBounds);
 			//map dimensions: 1600 x 668
 		
+			//convert player current coordinates to global, to see if the map needs to start moving
 			var pt:Point = new Point(0,0);
 			pt = p.localToGlobal(pt);
 			
-			
-			//trace(pt);
-			if(troubleshooting){
-				trace("global x:" + pt.x);
-				trace("global y:" + pt.y);
-				trace("local x:" + p.x);
-				trace("local y:" + p.y);
-				trace("map x:" + this.x);
-				trace("map y:" + this.y);
-				trace("vx:" + vx);
-				trace("vy:" + vy);
-				trace(this.x > 800+vx);
-				trace(this.x <-250+vx);
-			}
-			
 			//managing x
-			if(pt.x < 50 && vx<0 && !(this.x > 800+vx)){//player has exceeded non-moving area, start moving map (left)
+			if((pt.x < 50 && vx<0 && !(this.x > 800+vx)) || (pt.x > 500 && vx>0 && !(this.x <-250+vx))){//player has exceeded non-moving area, start moving the map
+				//move the map* and the player
 				this.x += -vx;
 				p.x += vx;
-				if(levelNumber == 7){
+				
+				if(levelNumber == 7){//move the darkness
 					darknessEffect.x += vx;
 				}
 			}
-			else if(pt.x > 500 && vx>0 && !(this.x <-250+vx)){//player has exceeded non-moving area, start moving map (right)
-				this.x += -vx;
+			else if((pt.x > 0 && pt.x < 550) || (pt.x == 550 && vx<0) || (pt.x == 0 && vx>0)){//allow player to move only if within boundary OR is straddling boundary and is moving in the opposite direction of the boundary
+				//move the player only
 				p.x += vx;
-				if(levelNumber == 7){
+				
+				if(levelNumber == 7){//move the darkness
 					darknessEffect.x += vx;
-				}
-			}
-			else{//if within moving area, just move the player
-				if((pt.x > 0 && pt.x < 550) || (pt.x == 550 && vx<0) || (pt.x == 0 && vx>0)){//allow player to move only if within boundary OR is straddling boundary and is moving in the opposite direction of the boundary
-					p.x += vx;
-					if(levelNumber == 7){
-						darknessEffect.x += vx;
-					}
 				}
 			}
 			
 			//managing y
-			if(pt.y < 50 && vy<0 && !(this.y > 330+vy)){
-				//trace("hi");
-				//trace(vy);
-				//trace(pt.y);
+			if((pt.y < 50 && vy<0 && !(this.y > 330+vy)) || (pt.y > 350 && vy>0 && !(this.y < 70+vy))){//player has exceeded non-moving area, start moving the map
+				//move the player and the map
 				this.y += -vy;
 				p.y += vy;
-				if(levelNumber == 7){
+				
+				if(levelNumber == 7){//move the darkness
 					darknessEffect.y += vy;
 				}
 			}
-			else if(pt.y > 350 && vy>0 && !(this.y < 70+vy)){
-				//trace("bye");
-				this.y += -vy;
+			else if((pt.y > 0 && pt.y < 400) || (pt.y == 0 && vy>0) || (pt.y == 400 && vy<0)){//allow the player to move only if within the boundaries OR is straddling boundary and is moving in the opposite direction of the boundary
+				//move the player only
 				p.y += vy;
-				if(levelNumber == 7){
+				
+				if(levelNumber == 7){//move the darkness
 					darknessEffect.y += vy;
-				}
-			}
-			else{
-				if((pt.y > 0 && pt.y < 400) || (pt.y == 0 && vy>0) || (pt.y == 400 && vy<0)){
-					p.y += vy;
-					if(levelNumber == 7){
-						darknessEffect.y += vy;
-					}	
-				}
+				}	
 				
 			}
 		}
 		
 		
-		public function walk(){
+		public function walk(){//animates the player
 			//Codes:
 			//0 left, 1 right, 2 up, 3 down
 			
@@ -963,8 +986,8 @@
 			//back 13-24
 			//LEFT/RIGHT 25-36
 			
-			if(globalWalking){
-				if(globalDir == 0){
+			if(globalWalking){//if the player is walking
+				if(globalDir == 0){//left
 					p.scaleX=0.7;
 					p.scaleY=0.7;
 					//left
@@ -973,16 +996,13 @@
 						p.gotoAndStop(25);
 					}
 					else if(p.currentFrame == 36){
-						//trace("last"+ p.currentFrame);
 						p.gotoAndStop(25);
 					}
 					else{
-						//trace("going"+ p.currentFrame);
 						p.gotoAndStop(p.currentFrame+1);
 					}
 				}
-				if(globalDir == 1){
-					//right
+				if(globalDir == 1){//right
 					p.scaleX=-0.7;
 					p.scaleY=0.7;
 					if(p.currentFrame>36 || p.currentFrame < 25){
@@ -995,7 +1015,7 @@
 						p.gotoAndStop(p.currentFrame+1);
 					}
 				}
-				if(globalDir == 2){
+				if(globalDir == 2){//up
 					p.scaleX=0.7;
 					p.scaleY=0.7;
 					if(p.currentFrame >= 13 && p.currentFrame < 24){
@@ -1008,7 +1028,7 @@
 						p.gotoAndStop(13);
 					}
 				}
-				if(globalDir == 3){
+				if(globalDir == 3){//down
 					p.scaleX=0.7;
 					p.scaleY=0.7;
 					if(p.currentFrame >= 1 && p.currentFrame < 12){
@@ -1023,8 +1043,10 @@
 				}
 				
 			}
-			else {//If this 
-				globalWalking = false;
+			else {//player has stopped moving
+				globalWalking = false;//disable walking
+				
+				//set the player to the resting position of the respective direction
 				if(globalDir == 0){
 					p.gotoAndStop(25);
 				}
@@ -1040,52 +1062,58 @@
 			}
 		}
 		
-		public function checkCollision(){
+		public function checkCollision(){//checks collisions
 			for(var i:int=0;i<borderArray.length;i++){
-				if(p.hitTestObject(borderArray[i])){
+				if(p.hitTestObject(borderArray[i])){//is player touching border, move him/her backwards
 					p.x-=vx;
 					p.y-=vy;
-					if(levelNumber == 7){
+					if(levelNumber == 7){//if there is darkness, that must be moved too
 						darknessEffect.x -= vx;
 						darknessEffect.y -= vy;
 					}	
 				}
 			}
+			
 			for(var j:int=0;j<actionItemArray.length;j++){
 				
-				if(ctrlDown && actionItemArray[j].hitTestObject(p)){
-					ctrlDown = false;
-					trace("blabhlah");
+				if(ctrlDown && actionItemArray[j].hitTestObject(p)){//player touching action item, and ctrl is held
+					ctrlDown = false;//prevents double activation
+					
+					//gets the properties of the action item the player has touched
 					var tempType = actionItemArray[j].returnProperties()[0];
 					var tempMess = actionItemArray[j].returnProperties()[1];
 					
-					trace("interacted with: " + tempType + " with message " + tempMess);
-					if(tempType == "sign"){
+					if(tempType == "sign"){//if it is a sign, just create a message box
 						createPrompt("message",tempMess,false);
 					}
 					
-					else if(tempType == "door"){
-						trace("Door going to: " + tempMess);
+					else if(tempType == "door"){//if it is a door, prepare to go inside!
+						
+						//get information about where the door is going
 						var tempMessArray:Array = tempMess.split(",");
+						
 						if(tempMessArray[0] == "gym" || tempMessArray[0] == "house"){//check if going indoors
-							inside = true;
 							
-							tempBarrierActionArray = null;
-							tempBarrierActionArray = new Array();
+							//setup the backup array of the level's stuff
+							tempBorderActionArray = undefined;
+							tempBorderActionArray = new Array();
 							
-							tempBarrierActionArray[0] = borderArray;
+							//backup the border array and clear it
+							tempBorderActionArray[0] = borderArray;
 							borderArray = null;
 							borderArray = new Array();
 							
-							tempBarrierActionArray[1] = actionItemArray;
+							//backup the action item array and clear it
+							tempBorderActionArray[1] = actionItemArray;
 							actionItemArray = null;
 							actionItemArray = new Array();
 							
-							//inside specific area
-							//create borders
-							if(tempMessArray[0] == "gym"){
-								if(parseInt(tempMessArray[1]) % 3 == 0){
+							if(tempMessArray[0] == "gym"){//if it is a gym
+								if(parseInt(tempMessArray[1]) % 3 == 0){//1st type
+									
+									//Set frame
 									this.gotoAndStop(11);
+									
 									//Create borders
 									
 									//bottom
@@ -1113,7 +1141,7 @@
 									//trash1
 									registerAction(-160,3,20,20,"sign","There%is%only%trash");
 									//trash2
-									registerAction(-84,3,20,20,"sign","A%mysterious%stone%is%inside");
+									registerAction(-84,3,20,20,"sign","A%mysterious%stone%is%%%%%%inside");
 									//trash3
 									registerAction(68,3,20,20,"sign","There%is%only%trash");
 									//trash4
@@ -1130,14 +1158,18 @@
 									boss.gotoAndStop(parseInt(tempMessArray[1])+1);
 									this.addChild(boss);									
 									
+									//Set the player position
 									p.x = 0;
 									p.y = 205;
 									this.x = 275;
 									this.y = 180;
 									
 								}
-								else if(parseInt(tempMessArray[1]) % 3 == 1){
+								else if(parseInt(tempMessArray[1]) % 3 == 1){//2nd type
+									
+									//Set frame
 									this.gotoAndStop(12);
+									
 									//Create borders
 									
 									//trees1
@@ -1190,14 +1222,18 @@
 									boss.gotoAndStop(parseInt(tempMessArray[1])+1);
 									this.addChild(boss);
 									
+									//Set player coordinates
 									p.x = 0;
 									p.y = 205;
 									this.x = 275;
 									this.y = 180;
 									
 								}
-								else if(parseInt(tempMessArray[1]) % 3 == 2){
+								else if(parseInt(tempMessArray[1]) % 3 == 2){//3rd type
+									
+									//Set frame
 									this.gotoAndStop(13);
+									
 									//Create borders
 									
 									//bottom
@@ -1244,6 +1280,7 @@
 									boss.gotoAndStop(parseInt(tempMessArray[1])+1);
 									this.addChild(boss);
 									
+									//Set player coordinates
 									p.x = 0;
 									p.y = 205;
 									this.x = 275;
@@ -1252,149 +1289,271 @@
 								}
 								
 							}
-							else if(tempMessArray[0] == "house"){
-								if(parseInt(tempMessArray[1]) % 3 == 0){
-									
+							
+							else if(tempMessArray[0] == "house"){//it is a house
+								
+								beforeInsideInfo = new Array(); //store player info before going in since he/she will be returning outside
+								beforeInsideInfo[0] = this.x;
+								beforeInsideInfo[1] = this.y;
+								beforeInsideInfo[2] = p.x;
+								beforeInsideInfo[3] = p.y;
+								
+								//Set frame
+								this.gotoAndStop(9);
+								
+								//Set position of player and map
+								this.x = 275;
+								this.y = 210;
+								p.x = -35;
+								p.y = 130;
+								
+								//create borders
+								
+								//leftwall
+								createBorders(-214,-187,-3,361);
+								//rightwall
+								createBorders(209,-187,-2,361);
+								//topwall
+								createBorders(211,-95,-438,3);
+								//bottom
+								createBorders(211,164,-438,3);
+								//leftplant
+								createBorders(-208,89,26,48);
+								//rightplant
+								createBorders(180,92,26,55);
+								
+								//add exit
+								registerAction(-69,153,60,10,"exitHouse","exitHouse");
+								
+								//add occupant
+								if(parseInt(tempMessArray[1]) % 3 == 0){//1st type
+									registerAction(-170,-7,20,20,"sign","I%will%always%do%math");
+									occupant = new NonPlayerCharacter();
+									occupant.scaleX = 0.7;
+									occupant.scaleY = 0.7;
+									occupant.gotoAndStop(8);
+									occupant.x = -164;
+									occupant.y = 2;
+									this.addChild(occupant);
 								}
-								else if(parseInt(tempMessArray[1]) % 3 == 1){
-									
+								else if(parseInt(tempMessArray[1]) % 3 == 1){//2nd type
+									registerAction(134,-81,20,20,"sign","Do%not%tell%anyone%that%I%%prefer%science");
+									occupant = new NonPlayerCharacter();
+									occupant.scaleX = 0.7;
+									occupant.scaleY = 0.7;
+									occupant.gotoAndStop(8);
+									occupant.x = 142;
+									occupant.y = -72;
+									this.addChild(occupant);
 								}
-								else if(parseInt(tempMessArray[1]) % 3 == 2){
-									
+								else if(parseInt(tempMessArray[1]) % 3 == 2){//3rd type
+									registerAction(148,5,20,20,"sign","All%hail%King%Wici");
+									occupant = new NonPlayerCharacter();
+									occupant.scaleX = 0.7;
+									occupant.scaleY = 0.7;
+									occupant.gotoAndStop(8);
+									occupant.x = 154;
+									occupant.y = 14;
+									this.addChild(occupant);
 								}
 							}
+							
+							//set the black background
 							blocker = new Blocker();
 							this.addChild(blocker);
 							this.setChildIndex(blocker,2);
 							this.setChildIndex(p, this.numChildren - 1);//set player to be on top
 						}
-						else if(tempMessArray[0] == "pc"){
-							trace("pc");
+						else if(tempMessArray[0] == "pc"){//pc center
+							
+							//loop through the player's pokemon and set health to 100
 							for each(var pokemon in p.getInventory()[0]){
 								trace(pokemon);
 								pokemon[2] = 100;
 							}
-								
+							
+							//tell the player about it
 							createPrompt("message","Your%pokemon%have%been%%%%%healed",false);
 								
 						}
-						else if(tempMessArray[0] == "shop"){
-							trace("shop");
-							if(p.getInventory()[1]['money'] > 99){
-								p.changeItem("money","dec",100);
-								p.changeItem("potion","inc");
-								createPrompt("message","Bought%one%potion%for%100%%coins%" + p.getInventory()[1]['money'] + "%coins%left",false);
+						else if(tempMessArray[0] == "shop"){//shop
+							
+							if(p.getInventory()[1]['money'] > 99){//check if the player has enough money (100)
+								p.changeItem("money","dec",100);//decrease money
+								p.changeItem("potion","inc");//increase potion
+								
+								//tell the player about it
+								createPrompt("message","Bought%one%potion%for%100%%coins.%" + p.getInventory()[1]['money'] + "%coins%left",false);
 							}
-							else{
-								createPrompt("message","You%do%not%have%enough%coins",false);
+							else{//player does not have sufficient funds
+								createPrompt("message","Yoqqu%do%not%have%enough%coins",false);
 							}
 						}
 					}
-					else if(tempType == "trainer"){
+					else if(tempType == "trainer"){//it is a boss
 						p.x -= vx;
 						p.y -= vy;
-						trace("going in with: " + p.getInventory()[1]['money']);
-						if(!isNaN(parseInt(tempMess))){
-							var tempMessInt:int = parseInt(tempMess);
-							var trainerName:String
+						if(!isNaN(parseInt(tempMess))){//check if there is a valid boss #
 							
-							if(tempMessInt == 0){
+							var tempMessInt:int = parseInt(tempMess);//store boss #
+							var trainerName:String;//store boss name
+							
+							//display the bosses message and it's name
+							
+							if(tempMessInt == 0){//1st boss
 								createPrompt("message","You%will%never%defeat%me",false);
 								trainerName = "Gov%Zari";
 							}
-							else if(tempMessInt == 1){
+							else if(tempMessInt == 1){//2nd boss
 								createPrompt("message","Long%live%Kedenia",false);
 								trainerName = "Gov%Asan";
 							}
-							else if(tempMessInt == 2){
-								createPrompt("message","Five%plus%five%equals%eleven",false);
+							else if(tempMessInt == 2){//3rd boss
+								createPrompt("message","Five%plus%five%equals%%%%%%eleven",false);
 								trainerName = "Gov%Nardo";
 							}
-							else if(tempMessInt == 3){
+							else if(tempMessInt == 3){//4th boss
 								createPrompt("message","Math%is%life",false);
 								trainerName = "Gov%Noen";
 							}
-							else if(tempMessInt == 4){
-								createPrompt("message","You%will%not%take%over%Kedenia",false);
+							else if(tempMessInt == 4){//5th boss
+								createPrompt("message","You%will%not%take%over%%%%%Kedenia",false);
 								trainerName = "Gov%Dao";
 							}
-							else if(tempMessInt == 5){
+							else if(tempMessInt == 5){//final boss
 								createPrompt("message","Qudratics%rule",false);
 								trainerName = "King%Wici";
 							}
-							TweenMax.delayedCall(3,startBattle,[trainerName]);
+							TweenMax.delayedCall(3,startBattle,[trainerName]);//delay so that the player can read the message
 						}
-						else {
+						else {//if no message, just start the battle
 							startBattle(tempMess);
 						}
 						
 					}
 					
+					else if(tempType == "portal"){//transport to 2nd level
+						if(generatedTeam){//check that the player has a team
+							createPrompt("message","You%hear%a%strange%sound%%%and%are%whisked%away",false);
+							TweenMax.delayedCall(3,exitLevel,[]);
+						}
+						else{
+							createPrompt("message","You%cannot%fight%alone",false);
+						}
+					}
+					
+					else if(tempType == "genPoke"){//generate pokemon
+						if(!generatedTeam){//check that the player has not already generated a team
+							createPrompt("message","I%can%only%spare%6%pokemon.Good%luck.",false);
+							generatePokemon();
+							generatedTeam = true;
+						}
+						else{
+							createPrompt("message","Sorry,but%I%can%spare%no%%%more",false);
+						}
+						
+					}
+					
+					else if(tempType == "exitHouse"){//exits a house
+						
+						//go back to the proper frame
+						this.gotoAndStop(levelNumber+1);
+						
+						//restore old border and action item array
+						borderArray = tempBorderActionArray[0];
+						actionItemArray = tempBorderActionArray[1];
+						
+						//clear backup
+						tempBorderActionArray = undefined;
+						
+						//stop the player from walking
+						globalWalking = false;
+						vx = -vx;
+						vy = -vy;
+						
+						//delete occupant
+						this.removeChild(occupant);
+						occupant = undefined;
+						
+						//delete blocker
+						this.removeChild(blocker);
+						
+						//restore player location
+						this.x = beforeInsideInfo[0];
+						this.y = beforeInsideInfo[1];
+						p.x = beforeInsideInfo[2];
+						p.y = beforeInsideInfo[3];
+					}
 				}//end ctrldown if
 				
-				try{
+				try{//try to push the player back, but the actionitemarray may have already been cleared by a house/gym
 					if(p.hitTestObject(actionItemArray[j])){
 						p.x-=vx;
 						p.y-=vy;
-						if(levelNumber == 7){
+						if(levelNumber == 7){//move the darkness aswell
 							darknessEffect.x -= vx;
 							darknessEffect.y -= vy;
 						}	
 					}
 				}
 				catch(error:Error){
-					//went inside, actionitemarray cleared
-					//safe to pass
-					trace("no probs");
+					trace("action item array was already cleared");
 				}
 			}
 		}
 		
+		//delete before shipping!
 		public function printMouse(e:MouseEvent){
 			trace("X: " + mouseX + " Y: " + mouseY);
 		}
 		
-		public function checkFinished(){
-			if(battling){
-				if(arena.getIsFinished()){
+		public function checkFinished(){//check if an overlaying level is finished
+			if(battling){//the arena is open
+				if(arena.getIsFinished()){//the battle is finished
 					battling = false;
+					
+					//update the player inventory (pokemon health, # of potions left)
 					p.setInventory(arena.getData());
 					
+					//process any messages the arena set back
 					var tempFinal:Array = arena.getFinalMessage();
+					//contents of array:
+					//0 - the message
+					//1 - whether the player won
+					//2 - whether the trainer has a message
 					
-					if(tempFinal[0] != "-1" && tempFinal[1]){
+					if(tempFinal[0] != "-1" && tempFinal[1]){//the player won and there is a message, show the message
 						createPrompt("message",tempFinal[0],false);
 					}
-					else if(tempFinal[0] != "-1"){
+					else if(tempFinal[0] != "-1"){//the player lost
 						createPrompt("message","You%have%been%defeated",false);
 					}
 					
 					if(tempFinal[1]){//player won
-						p.changeItem("money","inc",100);
+						p.changeItem("money","inc",100);//add 100 dollars
 					}
 					else{//player lost
-						p.changeItem("money","dec",100);
+						p.changeItem("money","dec",100);//remove 100 dollars
 						trace("loser");
 					}
 					
-					//if need to switch levels
+					//if need to switch levels (boss)
 					if(tempFinal[2] && tempFinal[1]){
 						TweenMax.delayedCall(3,exitLevel,[]);
 					}
+					
+					//clear the arena
 					this.removeChild(arena);
 					arena = null;
 					trace("money: " + p.getInventory()[1]['money']);
 				}
 			}
-		}
-		
-		public function checkTutFinished(){
-			if(inTutorial){
-				if(tut.getIsFinished()){
+			if(inTutorial){//the tutorial is open
+				if(tut.getIsFinished()){//tutorial is finished, so exit the level
 					exitLevel();
 				}
 			}
-		}		
+		}
 		
 		public function gameLoop(e:Event)
 		{
@@ -1403,8 +1562,6 @@
 			walk();
 			checkPrompt();
 			checkFinished();
-			checkTutFinished();
-			
 		}
 	}//end class
 }//end package
